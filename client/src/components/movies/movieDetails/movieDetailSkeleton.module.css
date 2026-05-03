@@ -1,0 +1,97 @@
+/* client/components/movies/movieDetails/movieDetailSkeleton.module.css */
+
+/* ── Root Container ─────────────────────────────────────────── */
+.mdsRoot {
+  min-height: 100vh;
+  background: var(--color-kritiq-black);
+  padding-top: 64px;
+}
+
+/* ── Hero Section ───────────────────────────────────────────── */
+.mdsHero {
+  display: flex;
+  gap: 16px;
+  padding: 24px 16px;
+}
+
+.mdsPoster {
+  width: 110px;
+  height: 165px;
+  border-radius: var(--radius-card);
+  background: var(--color-kritiq-dark-2);
+  flex-shrink: 0;
+  animation: shimmer 1.4s ease infinite;
+}
+
+.mdsHeroMeta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+/* ── Shimmering Lines ───────────────────────────────────────── */
+.mdsLine {
+  border-radius: 4px;
+  background: var(--color-kritiq-dark-2);
+  animation: shimmer 1.4s ease infinite;
+}
+
+.mdsLineTitle {
+  height: 20px;
+  width: 80%;
+}
+
+.mdsLineSub {
+  height: 13px;
+  width: 55%;
+  animation-delay: 0.1s;
+}
+
+.mdsLineSub2 {
+  height: 13px;
+  width: 40%;
+  animation-delay: 0.2s;
+}
+
+/* ── Score Section ──────────────────────────────────────────── */
+.mdsScores {
+  display: flex;
+  gap: 10px;
+  padding: 0 16px;
+}
+
+.mdsScorePill {
+  height: 48px;
+  flex: 1;
+  border-radius: var(--radius-card);
+  background: var(--color-kritiq-dark-2);
+  animation: shimmer 1.4s ease infinite;
+}
+
+/* ── Button Grid ────────────────────────────────────────────── */
+.mdsButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 16px;
+}
+
+.mdsBtn {
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--color-kritiq-dark-2);
+  animation: shimmer 1.4s ease infinite;
+}
+
+/* ── Keyframes ─────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}

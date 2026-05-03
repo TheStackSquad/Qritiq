@@ -1,0 +1,21 @@
+{
+  "name": "KritiQ — Nollywood & Afrobeats Pulse",
+  "short_name": "KritiQ",
+  "description": "Rate upcoming Nollywood films and Afrobeats releases.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#E50914",
+  "icons": [
+    {
+      "src": "/img/thumbnail_drgnimages.jpg",
+      "sizes": "192x192",
+      "type": "image/jpg"
+    },
+    {
+      "src": "/img/thumbnail_drgnimages.jpg",
+      "sizes": "512x512",
+      "type": "image/jpg"
+    }
+  ]
+}
