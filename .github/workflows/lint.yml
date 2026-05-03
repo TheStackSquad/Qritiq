@@ -1,0 +1,30 @@
+name: Lint Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  nextjs-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # This caches your dependencies to make future runs faster
+          cache: 'npm'
+          cache-dependency-path: 'client/package-json'
+
+      - name: Install Dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Run Next Lint
+        working-directory: ./client
+        run: npm run lint
