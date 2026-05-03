@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  # Opts into the new Node 24 requirement for 2026
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   nextjs-lint:
     runs-on: ubuntu-latest
@@ -16,10 +20,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          # This caches your dependencies to make future runs faster
+          node-version: 24 # Updated for 2026 standards
           cache: 'npm'
-          cache-dependency-path: 'client/package-json'
+          cache-dependency-path: 'client/package.json'
 
       - name: Install Dependencies
         working-directory: ./client
