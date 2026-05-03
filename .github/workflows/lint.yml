@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  # Opts into the new Node 24 requirement for 2026
+  # Required environment variable for June 2026 standards
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -20,8 +20,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24 # Updated for 2026 standards
+          node-version: 24
           cache: 'npm'
+          # Fixed path to match your client directory structure
           cache-dependency-path: 'client/package.json'
 
       - name: Install Dependencies
