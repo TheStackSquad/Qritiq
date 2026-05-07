@@ -1,4 +1,4 @@
-#.github/workflows/lint.yml
+# .github/workflows/lint.yml
 
 name: Lint Check
 
@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-          cache-dependency-path: './client/package-lock.json'
+          cache-dependency-path: client/package-lock.json
 
       - name: Install Dependencies
         working-directory: ./client

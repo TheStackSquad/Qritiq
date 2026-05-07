@@ -13,7 +13,7 @@ import (
 	"github.com/qritiq/server/pkg/model"
 )
 
-// ─── Repo ─────────────────────────────────────────────────────────────────────
+// ─── Repo ───────────────────────────────────────────────────────────────
 
 type EngagementRepo struct {
 	db *sqlx.DB
@@ -23,7 +23,7 @@ func NewEngagementRepo(db *sqlx.DB) *EngagementRepo {
 	return &EngagementRepo{db: db}
 }
 
-// ─── Writes ───────────────────────────────────────────────────────────────────
+// ─── Writes ──────────────────────────────────────────────────────────────
 
 // Upsert inserts a new engagement or does nothing on duplicate.
 // The DB unique constraint enforces one vote per type per user per content.
@@ -72,7 +72,7 @@ func (r *EngagementRepo) Delete(
 	return nil
 }
 
-// ─── Reads ────────────────────────────────────────────────────────────────────
+// ─── Reads ───────────────────────────────────────────────────────────────
 
 // GetUserState returns all engagement types a user has on a content item.
 // Used to build UserEngagementState for button rendering on the detail page.
@@ -149,7 +149,7 @@ func (r *EngagementRepo) GetExistingLikeVote(
 	return true, engType, nil
 }
 
-// ─── Analytics ────────────────────────────────────────────────────────────────
+// ─── Analytics ───────────────────────────────────────────────────────────
 
 // GetCityBreakdown returns geographic vote distribution for a content item.
 // Powers the Nigeria heatmap on the creator dashboard.
@@ -192,15 +192,35 @@ func (r *EngagementRepo) GetCityBreakdown(
 	}
 
 	return &model.DemographyBreakdown{
-		Lagos:        model.CityDataPoint{"Lagos", cityMap["Lagos"], pct("Lagos")},
-		Abuja:        model.CityDataPoint{"Abuja", cityMap["Abuja"], pct("Abuja")},
-		Enugu:        model.CityDataPoint{"Enugu", cityMap["Enugu"], pct("Enugu")},
-		Kano:         model.CityDataPoint{"Kano", cityMap["Kano"], pct("Kano")},
-		PortHarcourt: model.CityDataPoint{"Port Harcourt", cityMap["Port Harcourt"], pct("Port Harcourt")},
+		Lagos: model.CityDataPoint{
+			City:       "Lagos",
+			Count:      cityMap["Lagos"],
+			Percentage: pct("Lagos"),
+		},
+		Abuja: model.CityDataPoint{
+			City:       "Abuja",
+			Count:      cityMap["Abuja"],
+			Percentage: pct("Abuja"),
+		},
+		Enugu: model.CityDataPoint{
+			City:       "Enugu",
+			Count:      cityMap["Enugu"],
+			Percentage: pct("Enugu"),
+		},
+		Kano: model.CityDataPoint{
+			City:       "Kano",
+			Count:      cityMap["Kano"],
+			Percentage: pct("Kano"),
+		},
+		PortHarcourt: model.CityDataPoint{
+			City:       "Port Harcourt",
+			Count:      cityMap["Port Harcourt"],
+			Percentage: pct("Port Harcourt"),
+		},
 		Other: model.CityDataPoint{
-			"Other",
-			total - cityMap["Lagos"] - cityMap["Abuja"] - cityMap["Enugu"] - cityMap["Kano"] - cityMap["Port Harcourt"],
-			0,
+			City:       "Other",
+			Count:      total - cityMap["Lagos"] - cityMap["Abuja"] - cityMap["Enugu"] - cityMap["Kano"] - cityMap["Port Harcourt"],
+			Percentage: 0,
 		},
 	}, nil
 }
