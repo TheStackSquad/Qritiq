@@ -31,3 +31,9 @@ jobs:
       - name: Run Next Lint
         working-directory: ./client
         run: npm run lint
+
+      - name: Build Check
+        working-directory: ./client
+        run: npm run build
+        env:
+          NODE_ENV: production
