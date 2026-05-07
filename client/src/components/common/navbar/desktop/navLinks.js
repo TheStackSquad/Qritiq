@@ -5,7 +5,7 @@
 import Link from "next/link";
 import clsx from "clsx";
 
-const NAV_LINKS = [
+export const NAV_LINKS = [
   { label: "Movies", href: "/movies" },
   { label: "Music", href: "/music" },
   { label: "Trending", href: "/trending" },

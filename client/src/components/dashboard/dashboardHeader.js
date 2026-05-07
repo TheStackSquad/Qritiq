@@ -36,7 +36,7 @@ export default function DashboardHeader({ movie, user }) {
               marginBottom: "6px",
             }}
           >
-            Partner Dashboard
+            Partner Dashboard {user?.username ? `| ${user.username}` : ""}
           </p>
           <h1
             style={{

@@ -4,6 +4,7 @@
 // Sidebar list of creator's movies — click to switch the dashboard view.
 
 import { Film, Music } from "lucide-react";
+import Image from "next/image";
 
 export default function MovieSelector({ movies = [], selectedId, onSelect }) {
   if (!movies.length) {
@@ -28,6 +29,8 @@ export default function MovieSelector({ movies = [], selectedId, onSelect }) {
       <ul className="selector-list">
         {movies.map((movie) => {
           const isSelected = movie.id === selectedId;
+          const isMusic = movie.category === "music";
+
           return (
             <li key={movie.id}>
               <button
@@ -37,21 +40,19 @@ export default function MovieSelector({ movies = [], selectedId, onSelect }) {
                 {/* Poster thumbnail */}
                 <div className="selector-thumb">
                   {movie.poster_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={movie.poster_url}
                       alt={movie.title}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
+                      width={32}
+                      height={44}
+                      className="object-cover w-full h-full"
+                      // Preload the first few thumbnails for better performance
+                      priority={movies.indexOf(movie) < 4}
                     />
+                  ) : isMusic ? (
+                    <Music size={14} className="text-kritiq-ash" />
                   ) : (
-                    <Film
-                      size={14}
-                      style={{ color: "var(--color-kritiq-ash)" }}
-                    />
+                    <Film size={14} className="text-kritiq-ash" />
                   )}
                 </div>
 

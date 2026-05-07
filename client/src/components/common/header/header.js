@@ -6,9 +6,23 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import DesktopNav from "@/components/common/navbar/desktop/desktopNav";
 import MobileNav from "@/components/common/navbar/mobile/mobileNav";
+import { NAV_LINKS } from "../navbar/desktop/navLinks";
 
 export default function Header() {
   const pathname = usePathname();
+
+  const getPageTitle = (path) => {
+    if (path === "/") return "KritiQ";
+
+    for (const link of NAV_LINKS) {
+      if (path.startsWith(link.href)) {
+        return link.label;
+      }
+    }
+    return "KritiQ"; // Default title if no match
+  };
+
+  const pageTitle = getPageTitle(pathname);
 
   return (
     <header
@@ -48,6 +62,11 @@ export default function Header() {
             BETA
           </span>
         </Link>
+
+        {/* ── Dynamic Page Title ──────────────────────────────── */} 
+        <span className="font-clash font-semibold text-xl text-kritiq-white mx-4 hidden sm:block">
+          {pageTitle}
+        </span>
 
         {/* ── Desktop Nav ──────────────────────────────────── */}
         <DesktopNav currentPath={pathname} />

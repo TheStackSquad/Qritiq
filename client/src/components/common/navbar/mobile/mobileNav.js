@@ -5,10 +5,8 @@ import { Search, X, Menu, User } from "lucide-react";
 import Link from "next/link";
 import useAuthStore from "@/sessions/userSessions";
 import useUIStore from "@/sessions/uiStore";
-
-// ── This component is now just the icon row in the header ─────────────────────
-// MobileMenu and MobileSearch are rendered in layout.js as siblings of <Header>
-// so they live completely outside the header's backdrop-filter stacking context.
+import Image from "next/image";
+import { getAvatarUrl } from "@/services/cloudinary/upload/urlBuilders";
 
 export default function MobileNav() {
   const { user, isAuthenticated } = useAuthStore();
@@ -37,10 +35,14 @@ export default function MobileNav() {
         <Link href="/profile" className="btn-icon" aria-label="Profile">
           <div className="w-7 h-7 rounded-full bg-kritiq-dark-2 border border-kritiq-dark-3 flex items-center justify-center text-[10px] font-bold text-kritiq-silver uppercase overflow-hidden">
             {user?.avatar_url ? (
-              <img
-                src={user.avatar_url}
-                alt=""
-                className="w-full h-full object-cover"
+              <Image
+                src={getAvatarUrl(user.avatar_url, 56)}
+                alt={user.username || "Profile"}
+                width={28}
+                height={28}
+                className="object-cover"
+                loading="eager"
+                priority={true}
               />
             ) : (
               user?.username?.[0] || "?"

@@ -1,7 +1,7 @@
 //client/apiClient/api.js
 
 import axios from "axios";
-import Cookies from "js-cookie";
+//import Cookies from "js-cookie";
 
 // ─── Base Axios Instance ──────────────────────────────────────────
 const api = axios.create({

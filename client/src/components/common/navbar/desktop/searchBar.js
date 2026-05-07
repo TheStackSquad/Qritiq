@@ -176,9 +176,11 @@ export default function SearchBar() {
               spellCheck={false}
               className="sb-input"
               aria-label="Search movies"
-              aria-expanded={showDropdown}
-              aria-haspopup="listbox"
               role="combobox"
+              aria-expanded={showDropdown}
+              aria-controls="search-results-listbox"
+              aria-haspopup="listbox"
+              aria-autocomplete="list"
             />
             {query && (
               <button

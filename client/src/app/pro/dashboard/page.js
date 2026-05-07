@@ -36,10 +36,10 @@ function ProDashboardPage() {
           setSelectedId(list[0].id);
         }
       } catch (err) {
-        // If no movies yet, use seed data for presentation
-        setMovies(SEED_MOVIES);
-        if (!selectedId) setSelectedId(SEED_MOVIES[0].id);
-      }
+  console.error("Failed to fetch movies, loading seed data:", err); // Use 'err' here
+  setMovies(SEED_MOVIES);
+  if (!selectedId) setSelectedId(SEED_MOVIES[0].id);
+}
     }
     fetchMovies();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -54,10 +54,10 @@ function ProDashboardPage() {
       try {
         const { data } = await api.get(PRO_ROUTES.DASHBOARD(selectedId));
         setDashData(data?.data || null);
-      } catch (err) {
-        // Fall back to seed presentation data
-        setDashData(getSeedDashboard(selectedId));
-      } finally {
+     } catch (err) {
+  console.error("Dashboard fetch error:", err); // Use 'err' here
+  setDashData(getSeedDashboard(selectedId));
+} finally {
         setLoading(false);
       }
     }

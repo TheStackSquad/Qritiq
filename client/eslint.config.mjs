@@ -18,6 +18,13 @@ const eslintConfig = [
   // 2. Wrap Next.js configs to fix the serialization/circularity issue
   ...compat.config({
     extends: ["next/core-web-vitals"],
+    parser: "@babel/eslint-parser", // Explicitly set parser
+    parserOptions: {
+      requireConfigFile: false, // Prevents "No config file found" error with babel-eslint-parser
+      babelOptions: {
+        presets: ["next/babel"], // Use Next.js Babel preset
+      },
+    },
     rules: {
       // Add any specific overrides here if needed
     },

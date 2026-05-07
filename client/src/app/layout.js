@@ -102,7 +102,7 @@ export const metadata = {
     siteName: "KritiQ",
     title: "KritiQ — Nigeria's Pulse on Film & Music",
     description:
-      "Rate upcoming Nollywood films and Afrobeats releases before they drop.",
+      "Rate upcoming Nollywood films and Afrobeats releases before they drop. KritiQ tracks the pre-release hype so producers know what the streets are saying.",
     images: [
       {
         url: "/img/thumbnail_drgnimages.jpg",
@@ -117,7 +117,11 @@ export const metadata = {
     site: "@KritiQapp",
     title: "KritiQ — Nigeria's Pulse on Film & Music",
     description:
-      "Rate upcoming Nollywood films and Afrobeats releases before they drop.",
+      "Rate upcoming Nollywood films and Afrobeats releases before they drop. KritiQ tracks the pre-release hype so producers know what the streets are saying.",
+    images: {
+      url: "/img/thumbnail_drgnimages.jpg",
+      alt: "KritiQ",
+    },
   },
   robots: {
     index: true,
@@ -131,10 +135,8 @@ export const metadata = {
     },
   },
   icons: {
-    icon: [
-      { url: "/img/thumbnail_drgnimages.jpg" },
-      { url: "/img/thumbnail_drgnimages.jpg", type: "image/jpg" },
-    ],
+    icon: "/img/thumbnail_drgnimages.jpg",
+    shortcut: "/img/thumbnail_drgnimages.jpg",
     apple: "/img/thumbnail_drgnimages.jpg",
   },
   manifest: "/site.webmanifest",

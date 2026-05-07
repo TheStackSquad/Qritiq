@@ -4,6 +4,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import clsx from "clsx";
 import {
   User,
   ChevronDown,
@@ -45,19 +47,41 @@ export default function UserProfile() {
     <div className="relative" ref={profileRef}>
       <button
         onClick={() => setProfileOpen((v) => !v)}
-        className="btn-icon relative"
+        className="flex items-center gap-2 group focus:outline-none"
       >
-        {user?.avatar_url ? (
-          <img
-            src={getAvatarUrl(user.avatar_url, 32)}
-            alt={user.username}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-kritiq-dark-3"
-          />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-kritiq-dark-2 border border-kritiq-dark-3 flex items-center justify-center text-xs font-lexend font-semibold text-kritiq-silver uppercase">
-            {user?.username?.[0] || "?"}
-          </div>
-        )}
+        <div className="relative">
+          {user?.avatar_url ? (
+            <Image
+              src={getAvatarUrl(user.avatar_url, 64)}
+              alt={user.username || "User profile"}
+              width={32}
+              height={32}
+              className="rounded-full object-cover ring-2 ring-kritiq-dark-3 transition-all group-hover:ring-kritiq-red"
+              quality={80} // Balance between file size and clarity
+              priority={true} 
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-kritiq-dark-2 border border-kritiq-dark-3 flex items-center justify-center text-kritiq-silver transition-all group-hover:border-kritiq-red">
+              {/* Using User icon as a background fallback if username is missing */}
+              {user?.username ? (
+                <span className="text-xs font-lexend font-semibold uppercase">
+                  {user.username[0]}
+                </span>
+              ) : (
+                <User size={16} />
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Chevron icon to indicate the dropdown state */}
+        <ChevronDown
+          size={14}
+          className={clsx(
+            "text-kritiq-silver transition-transform duration-200 group-hover:text-kritiq-white",
+            profileOpen ? "rotate-180" : "rotate-0",
+          )}
+        />
       </button>
 
       {profileOpen && (
