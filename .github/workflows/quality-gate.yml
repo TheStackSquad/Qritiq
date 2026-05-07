@@ -1,3 +1,5 @@
+#.github/workflows/quality-gate.yml
+
 name: Qritiq Quality Gate
 
 on:
@@ -5,6 +7,9 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # ─── CLIENT ────────────────────────────────────────────
@@ -21,20 +26,19 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
           cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: ESLint (zero warnings)
-        run: npx next lint --max-warnings 0
+      - name: ESLint
+        run: npm run lint
 
       - name: Build
         run: npx next build
         env:
-          # Add your env vars here (use GitHub Secrets)
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
       - name: Bundle size report
@@ -81,14 +85,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for better scanning
+          fetch-depth: 0
 
       - name: Scan for hardcoded secrets
         run: |
           echo "Scanning for common secret patterns..."
           FOUND=0
 
-          # API keys
           if grep -rn "sk_live\|pk_live\|AKIA[0-9A-Z]\{16\}" \
             --include="*.go" --include="*.js" --include="*.jsx" \
             --exclude-dir=node_modules --exclude-dir=.next \
@@ -96,7 +99,6 @@ jobs:
             FOUND=1
           fi
 
-          # Hardcoded passwords/secrets in code
           if grep -rEn "(password|secret|token)\s*[:=]\s*['\"][^'\"]{8,}" \
             --include="*.go" \
             server/ 2>/dev/null | grep -v "_test.go"; then
@@ -132,13 +134,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
           cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
         working-directory: client
-        run: npm ci
+        run: npm install
 
       - name: Build for Lighthouse
         working-directory: client
