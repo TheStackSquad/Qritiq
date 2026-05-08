@@ -79,7 +79,14 @@ export default [
       "no-console": "off",
     },
   },
+  // ─── Ignores ───────────────────────────────────────────
   {
-    ignores: [".next/**", "node_modules/**", "dist/**", "build/**"],
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "dist/**",
+      "build/**",
+      "src/scripts/**",
+    ],
   },
 ];
