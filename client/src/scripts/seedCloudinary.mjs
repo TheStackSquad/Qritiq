@@ -1,14 +1,4 @@
-// client/scripts/seedCloudinary.mjs
-//
-// Uploads all assets from public/KritiQ/MoviePoster/ and public/KritiQ/MusicPoster/
-// to Cloudinary under the correct folder paths.
-//
-// Usage:
-//   node scripts/seedCloudinary.mjs
-//
-// Output:
-//   scripts/seed-results.json  ← public_id + secure_url for every uploaded asset
-//   (use this when seeding your Postgres DB)
+//client/src/scripts/seedCloudinary.mjs
 
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
@@ -16,8 +6,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
+// In ES Modules, we must derive __filename and __dirname manually
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// This ensures ROOT points to your public directory correctly
 const ROOT = path.resolve(__dirname, "../../public/KritiQ");
 
 cloudinary.config({
@@ -27,6 +20,7 @@ cloudinary.config({
     process.env.CLOUDINARY_API_SECRET || "gA--QpE_Lbzauy5C5fsYZUBdwS8",
   secure: true,
 });
+
 
 // ─── Folders to seed ─────────────────────────────────────────────────────────
 // localDir: path relative to public/KritiQ/

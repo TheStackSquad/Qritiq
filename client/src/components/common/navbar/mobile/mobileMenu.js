@@ -1,6 +1,7 @@
 // client/src/components/common/navbar/mobile/mobileMenu.js
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import {
   X,
@@ -32,19 +33,20 @@ export default function MobileMenu() {
   const logout = useLogout();
   const currentPath = usePathname();
 
-  // ── Body scroll lock ────────────────────────────────────────────────────────
-  // Owned here since this component controls the overflow-causing overlay.
-  // Safe to run on every render — only mutates when value actually changes.
-  if (typeof document !== "undefined") {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
+useEffect(() => {
+  if (typeof document === "undefined") return;
+
+  if (menuOpen) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
   }
 
-  // ── Escape key ──────────────────────────────────────────────────────────────
-  // Attached at this level so it works even if focus is outside the drawer.
-  if (typeof window !== "undefined") {
-    // Using a module-level handler would persist across unmounts — use
-    // inline conditional instead to keep it simple without useEffect.
-  }
+  // Cleanup function: resets scroll if the component unmounts while menu is open
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [menuOpen]);
 
   return (
     <>

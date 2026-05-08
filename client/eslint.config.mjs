@@ -1,39 +1,68 @@
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
+import nextPlugin from "@next/eslint-plugin-next";
+import reactPlugin from "eslint-plugin-react";
+import hooksPlugin from "eslint-plugin-react-hooks";
+import babelParser from "@babel/eslint-parser";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-});
-
-const eslintConfig = [
-  // 1. Basic JS recommended rules
+export default [
   js.configs.recommended,
-
-  // 2. Wrap Next.js configs to fix the serialization/circularity issue
-  ...compat.config({
-    extends: ["next/core-web-vitals"],
-    parser: "@babel/eslint-parser", // Explicitly set parser
-    parserOptions: {
-      requireConfigFile: false, // Prevents "No config file found" error with babel-eslint-parser
-      babelOptions: {
-        presets: ["next/babel"], // Use Next.js Babel preset
+  {
+    files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
+    plugins: {
+      "@next/next": nextPlugin,
+      react: reactPlugin,
+      "react-hooks": hooksPlugin,
+    },
+    settings: {
+      react: {
+        version: "detect", // This fixes the "React version not specified" warning
+      },
+    },
+    languageOptions: {
+      parser: babelParser,
+      parserOptions: {
+        requireConfigFile: false,
+        babelOptions: {
+          presets: ["next/babel"],
+        },
+      },
+      globals: {
+        window: "readonly",
+        document: "readonly",
+        process: "readonly",
+        console: "readonly",
+        setTimeout: "readonly",
+        clearTimeout: "readonly",
+        requestAnimationFrame: "readonly",
+        cancelAnimationFrame: "readonly",
+        fetch: "readonly",
+        FormData: "readonly",
+        URL: "readonly", // Added for layout.js
+        CustomEvent: "readonly", // Added for tokenRefresh.js
+        __dirname: "readonly",
       },
     },
     rules: {
-      // Add any specific overrides here if needed
+      ...reactPlugin.configs.recommended.rules,
+      ...hooksPlugin.configs.recommended.rules,
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "react/no-unknown-property": ["error", { ignore: ["jsx"] }],
+      "no-console": "off",
+      "no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^__" },
+      ], // Ignores __dirname
     },
-  }),
-
-  // 3. Global ignores (Crucial for Vercel/Next.js builds)
+  },
   {
-    ignores: [".next/**", "node_modules/**", "dist/**"],
+    ignores: [".next/**", "node_modules/**", "dist/**", "build/**"],
   },
 ];
-
-export default eslintConfig;

@@ -1,7 +1,8 @@
 // client/src/components/common/navbar/mobile/mobileSearch.js
+
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { Search, X, Flame, Star, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,12 +12,12 @@ import { getPosterUrl } from "@/services/cloudinary/upload/urlBuilders";
 import useUIStore from "@/sessions/uiStore";
 import clsx from "clsx";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
+// Helper: Format release status for display
 function formatStatus(status) {
   return status === "pre_release" ? "Pre-Release" : "Released";
 }
 
+// Sub-component: Displays Hype (Flame) or Rating (Star) scores
 function ScorePill({ result }) {
   if (result.status === "pre_release" && result.hype_score > 0) {
     return (
@@ -37,8 +38,7 @@ function ScorePill({ result }) {
   return null;
 }
 
-// ─── Result row ───────────────────────────────────────────────────────────────
-
+// Sub-component: Individual search result row with Cloudinary optimization
 function MobileResultRow({ result, onClick }) {
   const { src, blurDataURL } = result.poster_url
     ? getPosterUrl(result.poster_url, { width: 60, height: 80 })
@@ -60,7 +60,7 @@ function MobileResultRow({ result, onClick }) {
         {src ? (
           <Image
             src={src}
-            alt=""
+            alt={result.title || "Poster"}
             fill
             sizes="40px"
             className="ms-thumb-img"
@@ -89,8 +89,7 @@ function MobileResultRow({ result, onClick }) {
   );
 }
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
+// Sub-component: Skeleton loader for fetching states
 function MobileSkeleton() {
   return (
     <div className="ms-skeleton">
@@ -103,10 +102,6 @@ function MobileSkeleton() {
   );
 }
 
-// ─── Mobile Search ────────────────────────────────────────────────────────────
-// Rendered in layout.js as a sibling of <Header> — outside the header's
-// backdrop-filter stacking context. Reads open state from uiStore.
-
 export default function MobileSearch() {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -115,41 +110,53 @@ export default function MobileSearch() {
   const { searchOpen, closeSearch, closeAll } = useUIStore();
   const { data: results = [], isFetching } = useSearch(searchOpen ? query : "");
 
-  // Focus on open, clear on close
+  // Handler: Batches state clearing and closing for high-performance renders
+  const handleClose = useCallback(() => {
+    setQuery("");
+    closeSearch();
+  }, [closeSearch]);
+
+  // Handler: Resets search state before navigating to a new route
+  const handleNavigate = () => {
+    setQuery("");
+    closeAll();
+  };
+
+  // Effect: Delayed auto-focus to ensure smooth overlay transition
   useEffect(() => {
-    if (searchOpen) setTimeout(() => inputRef.current?.focus(), 50);
-    else setQuery("");
+    if (searchOpen) {
+      const timer = setTimeout(() => inputRef.current?.focus(), 50);
+      return () => clearTimeout(timer);
+    }
   }, [searchOpen]);
 
-  // Escape key
+  // Effect: Global Escape key listener for intuitive closing
+  // Escape key - Now including handleClose in the dependencies
   useEffect(() => {
     if (!searchOpen) return;
+
     const handler = (e) => {
-      if (e.key === "Escape") closeSearch();
+      if (e.key === "Escape") {
+        handleClose();
+      }
     };
+
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [searchOpen, closeSearch]);
+  }, [searchOpen, handleClose]); // <--- Add handleClose here
 
   function handleSubmit(e) {
     e.preventDefault();
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query.trim())}`);
-      closeAll();
+      handleNavigate();
     }
-  }
-
-  function handleNavigate() {
-    setQuery("");
-    closeAll();
   }
 
   const hasQuery = query.length >= 2;
   const hasResults = results.length > 0;
 
   return (
-    // CSS transition instead of conditional return — keeps the component
-    // mounted so state/focus is preserved and exit animation plays correctly.
     <div
       aria-hidden={!searchOpen}
       className={clsx(
@@ -159,7 +166,7 @@ export default function MobileSearch() {
           : "opacity-0 pointer-events-none",
       )}
     >
-      {/* ── Search bar ──────────────────────────────────────────────────── */}
+      {/* Search Header Section */}
       <div className="ms-bar">
         <Search size={18} className="ms-bar-icon" />
         <form onSubmit={handleSubmit} className="ms-form">
@@ -173,7 +180,7 @@ export default function MobileSearch() {
             autoCorrect="off"
             spellCheck={false}
             className="ms-input"
-            aria-label="Search"
+            aria-label="Search inputs"
             tabIndex={searchOpen ? 0 : -1}
           />
         </form>
@@ -184,22 +191,22 @@ export default function MobileSearch() {
               setQuery("");
               inputRef.current?.focus();
             }}
-            aria-label="Clear"
+            aria-label="Clear search query"
           >
             <X size={16} />
           </button>
         ) : (
           <button
             className="ms-close"
-            onClick={closeSearch}
-            aria-label="Close search"
+            onClick={handleClose}
+            aria-label="Close search overlay"
           >
             <X size={18} />
           </button>
         )}
       </div>
 
-      {/* ── Body ────────────────────────────────────────────────────────── */}
+      {/* Main Content Body */}
       <div className="ms-body">
         {hasQuery && isFetching && (
           <div className="ms-list">

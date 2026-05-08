@@ -55,10 +55,9 @@ export default function CompetitorTable({ competitors = [], targetMovieId }) {
 
   const data = competitors.length > 0 ? competitors : SEED;
 
-  // Normalise — API returns `id`, seed uses `id`, old seed used `content_id`
-  const normalised = data.map((m) => ({
+  const normalised = data.map((m, i) => ({
     ...m,
-    _key: m.id || m.content_id || Math.random().toString(),
+    _key: m.id || m.content_id || `fallback-key-${i}`,
     _votes: m.total_hype_votes ?? m.total_votes ?? 0,
   }));
 
