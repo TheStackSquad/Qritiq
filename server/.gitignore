@@ -1,0 +1,18 @@
+# Environment variables
+.env
+.env.*
+.env.local
+.env.production
+
+# Go binaries
+server
+server.exe
+
+# Go build artifacts
+*.exe
+*.out
+dist/
+
+# OS files
+.DS_Store
+Thumbs.db
