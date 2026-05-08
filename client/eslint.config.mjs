@@ -20,7 +20,7 @@ export default [
     },
     settings: {
       react: {
-        version: "detect", // This fixes the "React version not specified" warning
+        version: "detect",
       },
     },
     languageOptions: {
@@ -42,8 +42,8 @@ export default [
         cancelAnimationFrame: "readonly",
         fetch: "readonly",
         FormData: "readonly",
-        URL: "readonly", // Added for layout.js
-        CustomEvent: "readonly", // Added for tokenRefresh.js
+        URL: "readonly",
+        CustomEvent: "readonly",
         __dirname: "readonly",
       },
     },
@@ -59,7 +59,24 @@ export default [
       "no-unused-vars": [
         "warn",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^__" },
-      ], // Ignores __dirname
+      ],
+    },
+  },
+  // ─── Node.js scripts (mjs files) ───────────────────────
+  {
+    files: ["**/*.mjs", "**/scripts/**/*.js"],
+    languageOptions: {
+      globals: {
+        process: "readonly",
+        console: "readonly",
+        __dirname: "readonly",
+        __filename: "readonly",
+        URL: "readonly",
+        Buffer: "readonly",
+      },
+    },
+    rules: {
+      "no-console": "off",
     },
   },
   {
