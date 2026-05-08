@@ -1,6 +1,6 @@
 // client/src/services/searchApi.js
 
-import api from "@/apiClient/tokenRefresh";
+import api from "../apiClient/tokenRefresh";
 
 export async function searchMovies(query) {
   // console.log("[searchApi] searchMovies called", { query });

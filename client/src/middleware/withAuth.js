@@ -3,7 +3,7 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import useAuthStore from "@/sessions/userSessions";
+import useAuthStore from "../sessions/userSessions";
 
 const ROLE_HIERARCHY = {
   guest: 0,

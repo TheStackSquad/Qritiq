@@ -3,7 +3,7 @@
 "use client";
 
 import { useEffect } from "react";
-import useAuthStore from "@/sessions/userSessions";
+import useAuthStore from "../../sessions/userSessions";
 
 export default function ZustandProvider({ children }) {
   const hydrate = useAuthStore((s) => s.hydrate);

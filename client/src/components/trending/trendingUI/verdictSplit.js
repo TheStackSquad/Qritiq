@@ -1,7 +1,7 @@
 // src/components/trending/trendingUI/verdictSplit.js
 "use client";
 
-import { VERDICT_SPLIT_SEED } from "@/data/seedData";
+import { VERDICT_SPLIT_SEED } from "../../../data/seedData";
 import { TrendingSkeleton, TrendingError } from "./trendingStates";
 
 function getVerdict(gap) {

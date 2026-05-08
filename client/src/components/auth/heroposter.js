@@ -5,7 +5,7 @@
 "use client";
 
 import Image from "next/image";
-import { getPosterUrl } from "@/services/cloudinary/upload/urlBuilders";
+import { getPosterUrl } from "../../services/cloudinary/upload/urlBuilders";
 
 // ─── Poster data ──────────────────────────────────────────────────────────────
 

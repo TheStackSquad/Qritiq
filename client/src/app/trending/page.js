@@ -2,9 +2,9 @@
 "use client";
 
 import { useState } from "react";
-import VerdictSplit from "@/components/trending/trendingUI/verdictSplit";
-import HypeRadar from "@/components/trending/trendingUI/hyperRadar";
-import { useHypeRadar, useVerdictSplit } from "@/utils/hooks/useTrending";
+import VerdictSplit from "../../components/trending/trendingUI/verdictSplit";
+import HypeRadar from "../../components/trending/trendingUI/hyperRadar";
+import { useHypeRadar, useVerdictSplit } from "../../utils/hooks/useTrending";
 
 const TABS = [
   { id: "radar", label: "Hype Radar", emoji: "📡" },

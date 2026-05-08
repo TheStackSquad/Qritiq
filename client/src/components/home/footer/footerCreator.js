@@ -3,7 +3,7 @@
 
 import { useRouter } from "next/navigation";
 import { LayoutDashboard, TrendingUp, MapPin, BarChart2 } from "lucide-react";
-import useAuthStore from "@/sessions/userSessions";
+import useAuthStore from "../../../sessions/userSessions";
 
 const PERKS = [
   { icon: TrendingUp, text: "Real-time Hype Meter" },

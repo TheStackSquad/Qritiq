@@ -3,8 +3,8 @@
 "use client";
 
 import { Suspense } from "react";
-import LoginForm from "@/app/(auth)/login/loginForm";
-import HeroPoster from "@/components/auth/heroposter";
+import LoginForm from "../../(auth)/login/loginForm";
+import HeroPoster from "../../../components/auth/heroposter";
 import { authSharedStyles } from "./authStyles";
 
 export default function LoginPage() {

@@ -1,9 +1,9 @@
 "use client";
 //client/utils/hooks/useKritiQ.js
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import useAuthStore from "@/sessions/userSessions";
+import useAuthStore from "../../sessions/userSessions";
 import { useRouter } from "next/navigation";
-import { searchMovies } from "@/services/searchAPi";
+import { searchMovies } from "../../services/searchAPi";
 import { useDebounce } from "use-debounce";
 
 // Centralised to avoid typo-driven cache bugs

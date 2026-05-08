@@ -2,7 +2,7 @@
 "use client";
 
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { HYPE_RADAR_SEED } from "@/data/seedData";
+import { HYPE_RADAR_SEED } from "../../../data/seedData";
 import { TrendingSkeleton, TrendingError } from "./trendingStates";
 
 // ── Delta badge ───────────────────────────────────────────────────────────────

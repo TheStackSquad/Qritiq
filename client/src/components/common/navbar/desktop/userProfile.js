@@ -13,9 +13,9 @@ import {
   LayoutDashboard,
   Settings,
 } from "lucide-react";
-import useAuthStore from "@/sessions/userSessions";
-import { useLogout } from "@/utils/hooks/useKritiQ";
-import { getAvatarUrl } from "@/services/cloudinary/upload/urlBuilders";
+import useAuthStore from "../../../../sessions/userSessions";
+import { useLogout } from "../../../../utils/hooks/useKritiQ";
+import { getAvatarUrl } from "../../../../services/cloudinary/upload/urlBuilders";
 
 export default function UserProfile() {
   const [profileOpen, setProfileOpen] = useState(false);

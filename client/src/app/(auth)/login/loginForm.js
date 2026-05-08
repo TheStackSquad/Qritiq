@@ -5,9 +5,9 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import useAuthStore from "@/sessions/userSessions";
-import { loginAPI } from "@/services/loginApi";
-import { resolveRedirect } from "@/utils/hooks/resolveRedirect";
+import useAuthStore from "../../../sessions/userSessions";
+import { loginAPI } from "../../../services/loginApi";
+import { resolveRedirect } from "../../../utils/hooks/resolveRedirect";
 
 export default function LoginForm() {
   const router = useRouter();

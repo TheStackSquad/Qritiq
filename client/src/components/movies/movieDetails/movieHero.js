@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import { Calendar, Eye, ThumbsUp } from "lucide-react";
-import { getPosterUrl } from "@/services/cloudinary/upload/urlBuilders";
+import { getPosterUrl } from "../../../services/cloudinary/upload/urlBuilders";
 
 function StatPill({ icon: Icon, value, label }) {
   if (!value && value !== 0) return null;

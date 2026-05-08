@@ -1,4 +1,5 @@
-// src/components/movies/movieDetails/movieVoting.js
+// client/src/components/musicDetails/musicVoting.js
+
 "use client";
 
 import { useState } from "react";
@@ -8,46 +9,50 @@ import {
   Flame,
   Meh,
   TrendingDown,
-  Drama,
-  Clapperboard,
+  Mic2,
   Music2,
   Sparkles,
   AlertTriangle,
+  Radio,
+  Headphones,
+  Zap,
 } from "lucide-react";
 import { useEngage } from "../../../utils/hooks/useEngagement";
 import useAuthStore from "../../../sessions/userSessions";
 import AuthGate from "../../../components/auth/authGate";
-import MovieStarRating from "./movieStarRatings";
+import MusicStarRating from "./musicStarRating";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const HYPE_VOTES = [
-  { value: "hype", label: "Hyped", icon: Flame, color: "var(--color-hype)" },
+  { value: "hype", label: "Hyped", icon: Flame, color: "#f59e0b" },
   { value: "meh", label: "Meh", icon: Meh, color: "var(--color-kritiq-ash)" },
-  { value: "flop", label: "Flop", icon: TrendingDown, color: "#EF4444" },
+  { value: "flop", label: "Flop", icon: TrendingDown, color: "#ef4444" },
 ];
 
+// Pre-release — before track drops
 const PRE_RELEASE_BUTTONS = [
-  { value: "looks_promising", label: "Looks Promising", icon: Sparkles },
-  { value: "great_trailer", label: "Great Trailer", icon: Clapperboard },
-  { value: "cant_wait", label: "Can't Wait", icon: Flame },
+  { value: "fire_artist", label: "Fire Artist", icon: Flame },
+  { value: "great_snippet", label: "Great Snippet", icon: Headphones },
+  { value: "cant_wait", label: "Can't Wait", icon: Zap },
   { value: "overhyped", label: "Overhyped", icon: AlertTriangle },
-  { value: "risky_cast", label: "Risky Cast", icon: Drama },
-  { value: "bold_concept", label: "Bold Concept", icon: Music2 },
+  { value: "bad_timing", label: "Bad Timing", icon: Radio },
+  { value: "bold_sound", label: "Bold Sound", icon: Music2 },
 ];
 
+// Post-release — after track drops
 const RELEASED_BUTTONS = [
-  { value: "plot", label: "Great Plot", icon: Drama },
-  { value: "acting", label: "Great Acting", icon: Clapperboard },
-  { value: "soundtrack", label: "Soundtrack 🔥", icon: Music2 },
-  { value: "visuals", label: "Stunning Visuals", icon: Sparkles },
-  { value: "predictable", label: "Too Predictable", icon: AlertTriangle },
-  { value: "slow", label: "Slow Paced", icon: Meh },
+  { value: "lyrics", label: "Hard Lyrics", icon: Mic2 },
+  { value: "production", label: "Crazy Prod", icon: Sparkles },
+  { value: "chorus", label: "Chorus Slaps", icon: Music2 },
+  { value: "vibe", label: "Pure Vibe", icon: Headphones },
+  { value: "repetitive", label: "Too Repetitive", icon: AlertTriangle },
+  { value: "no_replay", label: "No Replay Value", icon: TrendingDown },
 ];
 
 // ─── Like / Dislike bar ───────────────────────────────────────────────────────
 
-function LikeBar({ movie, engagement, onAuthRequired }) {
+function LikeBar({ track, engagement, onAuthRequired }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
   const engage = useEngage();
 
@@ -56,66 +61,60 @@ function LikeBar({ movie, engagement, onAuthRequired }) {
 
   function handleLike() {
     if (!isAuthenticated) {
-      onAuthRequired("Sign in to like this movie.");
+      onAuthRequired("Sign in to like this track.");
       return;
     }
     engage.mutate({
-      contentId: movie.id,
-      contentType: "movie",
+      contentId: track.id,
+      contentType: "music",
       engagementType: "like",
-      slug: movie.slug,
+      slug: track.slug,
     });
   }
-
   function handleDislike() {
     if (!isAuthenticated) {
       onAuthRequired("Sign in to vote.");
       return;
     }
     engage.mutate({
-      contentId: movie.id,
-      contentType: "movie",
+      contentId: track.id,
+      contentType: "music",
       engagementType: "dislike",
-      slug: movie.slug,
+      slug: track.slug,
     });
   }
 
-  const likeCount = (movie.total_likes ?? 0) + (liked ? 0 : 0); // server is source of truth
-
   return (
-    <div className="mv-like-bar">
+    <div className="mlb-root">
       <button
-        className={`mv-like-btn ${liked ? "mv-like-btn--active" : ""}`}
+        className={`mlb-btn ${liked ? "mlb-btn--liked" : ""}`}
         onClick={handleLike}
         aria-label="Like"
         disabled={engage.isPending}
       >
         <ThumbsUp size={15} strokeWidth={2} />
-        <span>{likeCount.toLocaleString()}</span>
+        <span>{(track.total_likes ?? 0).toLocaleString()}</span>
       </button>
-
-      <div className="mv-divider" />
-
+      <div className="mlb-divider" />
       <button
-        className={`mv-like-btn mv-like-btn--dislike ${disliked ? "mv-like-btn--dislike-active" : ""}`}
+        className={`mlb-btn mlb-btn--dis ${disliked ? "mlb-btn--disliked" : ""}`}
         onClick={handleDislike}
         aria-label="Dislike"
         disabled={engage.isPending}
       >
         <ThumbsDown size={15} strokeWidth={2} />
       </button>
-
       <style jsx>{`
-        .mv-like-bar {
+        .mlb-root {
           display: flex;
           align-items: center;
-          border-radius: var(--radius-pill);
-          border: 1px solid var(--color-kritiq-dark-3);
-          background: var(--color-kritiq-dark-1);
+          border-radius: var(--radius-pill, 99px);
+          border: 1px solid var(--color-kritiq-dark-3, #2a2a2a);
+          background: var(--color-kritiq-dark-1, #111);
           overflow: hidden;
           width: fit-content;
         }
-        .mv-like-btn {
+        .mlb-btn {
           display: flex;
           align-items: center;
           gap: 6px;
@@ -123,8 +122,8 @@ function LikeBar({ movie, engagement, onAuthRequired }) {
           background: none;
           border: none;
           cursor: pointer;
-          color: var(--color-kritiq-ash);
-          font-family: var(--font-lexend);
+          color: var(--color-kritiq-ash, #888);
+          font-family: var(--font-lexend, sans-serif);
           font-size: 13px;
           font-weight: 500;
           transition:
@@ -132,26 +131,26 @@ function LikeBar({ movie, engagement, onAuthRequired }) {
             background 150ms ease;
           -webkit-tap-highlight-color: transparent;
         }
-        .mv-like-btn:disabled {
+        .mlb-btn:disabled {
           opacity: 0.5;
           cursor: wait;
         }
-        .mv-like-btn:hover {
-          background: var(--color-kritiq-dark-2);
+        .mlb-btn:hover {
+          background: var(--color-kritiq-dark-2, #1a1a1a);
         }
-        .mv-like-btn--active {
+        .mlb-btn--liked {
           color: #22c55e;
         }
-        .mv-like-btn--dislike {
+        .mlb-btn--dis {
           padding: 10px 14px;
         }
-        .mv-like-btn--dislike-active {
+        .mlb-btn--disliked {
           color: #ef4444;
         }
-        .mv-divider {
+        .mlb-divider {
           width: 1px;
           height: 20px;
-          background: var(--color-kritiq-dark-3);
+          background: var(--color-kritiq-dark-3, #2a2a2a);
           flex-shrink: 0;
         }
       `}</style>
@@ -161,7 +160,7 @@ function LikeBar({ movie, engagement, onAuthRequired }) {
 
 // ─── Main voting panel ────────────────────────────────────────────────────────
 
-export default function MovieVoting({ movie, engagement }) {
+export default function MusicVoting({ track, engagement }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated());
   const engage = useEngage();
 
@@ -170,9 +169,11 @@ export default function MovieVoting({ movie, engagement }) {
   const [ratingVotes, setRatingVotes] = useState([]);
 
   const currentHypeVote = engagement?.hype_vote ?? "";
+  const dimensionButtons =
+    track.status === "pre_release" ? PRE_RELEASE_BUTTONS : RELEASED_BUTTONS;
 
-  function requireAuth(message) {
-    setAuthGateMessage(message);
+  function requireAuth(msg) {
+    setAuthGateMessage(msg);
     setAuthGateOpen(true);
   }
 
@@ -182,10 +183,10 @@ export default function MovieVoting({ movie, engagement }) {
       return;
     }
     engage.mutate({
-      contentId: movie.id,
-      contentType: "movie",
+      contentId: track.id,
+      contentType: "music",
       engagementType: value,
-      slug: movie.slug,
+      slug: track.slug,
     });
   }
 
@@ -199,25 +200,22 @@ export default function MovieVoting({ movie, engagement }) {
     );
   }
 
-  const dimensionButtons =
-    movie.status === "pre_release" ? PRE_RELEASE_BUTTONS : RELEASED_BUTTONS;
-
   return (
     <>
       <div className="mv-root">
-        {/* ── Like / Dislike ───────────────────────────────────── */}
+        {/* Like / Dislike */}
         <LikeBar
-          movie={movie}
+          track={track}
           engagement={engagement}
           onAuthRequired={requireAuth}
         />
 
-        {/* ── Hype vote ────────────────────────────────────────── */}
+        {/* Hype vote */}
         <div className="mv-section">
           <p className="mv-section-label">
-            {movie.status === "pre_release"
-              ? "Are you hyped?"
-              : "Was it worth the hype?"}
+            {track.status === "pre_release"
+              ? "Is this one gon' slap?"
+              : "Did it actually slap?"}
           </p>
           <div className="mv-hype-row">
             {HYPE_VOTES.map((v) => {
@@ -238,29 +236,29 @@ export default function MovieVoting({ movie, engagement }) {
           </div>
         </div>
 
-        {/* ── Star rating — released movies only ───────────────── */}
-        {movie.status === "released" && (
-          <MovieStarRating
-            movie={movie}
+        {/* Star rating — released only */}
+        {track.status === "released" && (
+          <MusicStarRating
+            track={track}
             engagement={engagement}
             onAuthRequired={requireAuth}
           />
         )}
 
-        {/* ── Dimension buttons ─────────────────────────────────── */}
+        {/* Dimension buttons */}
         <div className="mv-section">
           <p className="mv-section-label">
-            {movie.status === "pre_release"
+            {track.status === "pre_release"
               ? "First impressions?"
               : "What stood out?"}
           </p>
-          <div className="mv-rating-grid">
+          <div className="mv-dim-grid">
             {dimensionButtons.map((b) => {
               const active = ratingVotes.includes(b.value);
               return (
                 <button
                   key={b.value}
-                  className={`mv-rating-btn ${active ? "mv-rating-btn--active" : ""}`}
+                  className={`mv-dim-btn ${active ? "mv-dim-btn--active" : ""}`}
                   onClick={() => toggleDimension(b.value)}
                 >
                   <b.icon size={13} strokeWidth={2} />
@@ -272,7 +270,6 @@ export default function MovieVoting({ movie, engagement }) {
         </div>
       </div>
 
-      {/* ── Auth gate ─────────────────────────────────────────────── */}
       <AuthGate
         isOpen={authGateOpen}
         onClose={() => setAuthGateOpen(false)}
@@ -280,40 +277,29 @@ export default function MovieVoting({ movie, engagement }) {
       />
 
       <style jsx>{`
-        /* ── Root ─────────────────────────────────────────────── */
-
         .mv-root {
-          padding: 0 16px;
           display: flex;
           flex-direction: column;
           gap: 20px;
         }
-
-        /* ── Section ──────────────────────────────────────────── */
-
         .mv-section {
           display: flex;
           flex-direction: column;
           gap: 10px;
         }
-
         .mv-section-label {
-          font-family: var(--font-lexend);
+          font-family: var(--font-lexend, sans-serif);
           font-size: 12px;
           font-weight: 700;
           letter-spacing: 0.06em;
           text-transform: uppercase;
-          color: var(--color-kritiq-ash);
+          color: var(--color-kritiq-ash, #888);
           margin: 0;
         }
-
-        /* ── Hype buttons ─────────────────────────────────────── */
-
         .mv-hype-row {
           display: flex;
           gap: 8px;
         }
-
         .mv-hype-btn {
           flex: 1;
           display: flex;
@@ -321,47 +307,43 @@ export default function MovieVoting({ movie, engagement }) {
           justify-content: center;
           gap: 6px;
           padding: 10px 8px;
-          border-radius: var(--radius-pill);
-          border: 1px solid var(--color-kritiq-dark-3);
-          background: var(--color-kritiq-dark-1);
-          color: var(--color-kritiq-ash);
-          font-family: var(--font-lexend);
+          border-radius: var(--radius-pill, 99px);
+          border: 1px solid var(--color-kritiq-dark-3, #2a2a2a);
+          background: var(--color-kritiq-dark-1, #111);
+          color: var(--color-kritiq-ash, #888);
+          font-family: var(--font-lexend, sans-serif);
           font-size: 13px;
           font-weight: 500;
           cursor: pointer;
           transition: all 150ms ease;
           -webkit-tap-highlight-color: transparent;
         }
-
         .mv-hype-btn:hover {
-          background: var(--color-kritiq-dark-2);
+          background: var(--color-kritiq-dark-2, #1a1a1a);
         }
         .mv-hype-btn:disabled {
           opacity: 0.5;
           cursor: wait;
         }
         .mv-hype-btn--active {
-          background: rgba(192, 0, 26, 0.08);
+          background: rgba(245, 158, 11, 0.08);
         }
 
-        /* ── Dimension grid ───────────────────────────────────── */
-
-        .mv-rating-grid {
+        .mv-dim-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 8px;
         }
-
-        .mv-rating-btn {
+        .mv-dim-btn {
           display: flex;
           align-items: center;
           gap: 7px;
           padding: 11px 14px;
-          border-radius: var(--radius-pill);
-          border: 1px solid var(--color-kritiq-dark-3);
-          background: var(--color-kritiq-dark-1);
-          color: var(--color-kritiq-ash);
-          font-family: var(--font-lexend);
+          border-radius: var(--radius-pill, 99px);
+          border: 1px solid var(--color-kritiq-dark-3, #2a2a2a);
+          background: var(--color-kritiq-dark-1, #111);
+          color: var(--color-kritiq-ash, #888);
+          font-family: var(--font-lexend, sans-serif);
           font-size: 12px;
           font-weight: 500;
           cursor: pointer;
@@ -369,16 +351,14 @@ export default function MovieVoting({ movie, engagement }) {
           -webkit-tap-highlight-color: transparent;
           text-align: left;
         }
-
-        .mv-rating-btn:hover {
-          background: var(--color-kritiq-dark-2);
-          color: var(--color-kritiq-silver);
+        .mv-dim-btn:hover {
+          background: var(--color-kritiq-dark-2, #1a1a1a);
+          color: var(--color-kritiq-silver, #ccc);
         }
-
-        .mv-rating-btn--active {
-          background: rgba(192, 0, 26, 0.1);
-          border-color: rgba(192, 0, 26, 0.4);
-          color: var(--color-kritiq-white);
+        .mv-dim-btn--active {
+          background: rgba(245, 158, 11, 0.08);
+          border-color: rgba(245, 158, 11, 0.3);
+          color: #f59e0b;
         }
       `}</style>
     </>

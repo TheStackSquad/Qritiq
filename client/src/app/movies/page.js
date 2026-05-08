@@ -2,10 +2,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useMovies } from "@/utils/hooks/useMovie";
-import MovieGrid from "@/components/movies/movieUI/movieGrid";
-import MovieFilterBar from "@/components/movies/movieUI/movieFilterBar";
-import Footer from "@/components/home/footer/index";
+import { useMovies } from "../../utils/hooks/useMovie";
+import MovieGrid from "../../components/movies/movieUI/movieGrid";
+import MovieFilterBar from "../../components/movies/movieUI/movieFilterBar";
+import Footer from "../../components/home/footer/index";
 
 export default function MoviesPage() {
   const [filter, setFilter] = useState("all");

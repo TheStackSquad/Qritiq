@@ -10,9 +10,9 @@ import {
   LayoutDashboard,
   LogOut,
 } from "lucide-react";
-import useAuthStore from "@/sessions/userSessions";
-import useUIStore from "@/sessions/uiStore";
-import { useLogout } from "@/utils/hooks/useKritiQ";
+import useAuthStore from "../../../../sessions/userSessions";
+import useUIStore from "../../../../sessions/uiStore";
+import { useLogout } from "../../../../utils/hooks/useKritiQ";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 

@@ -6,12 +6,12 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import withAuth from "@/middleware/withAuth";
-import Dashboard from "@/components/dashboard/index";
-import Header from "@/components/common/header/header";
-import useAuthStore from "@/sessions/userSessions";
-import api from "@/apiClient/tokenRefresh";
-import { PRO_ROUTES } from "@/constants/routes";
+import withAuth from "../../../middleware/withAuth";
+import Dashboard from "../../../components/dashboard/index";
+import Header from "../../../components/common/header/header";
+import useAuthStore from "../../../sessions/userSessions";
+import api from "../../../apiClient/tokenRefresh";
+import { PRO_ROUTES } from "../../../constants/routes";
 
 function ProDashboardPage() {
   const user = useAuthStore((s) => s.user);

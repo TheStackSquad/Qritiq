@@ -4,8 +4,8 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import DesktopNav from "@/components/common/navbar/desktop/desktopNav";
-import MobileNav from "@/components/common/navbar/mobile/mobileNav";
+import DesktopNav from "../../../components/common/navbar/desktop/desktopNav";
+import MobileNav from "../../../components/common/navbar/mobile/mobileNav";
 import { NAV_LINKS } from "../navbar/desktop/navLinks";
 
 export default function Header() {

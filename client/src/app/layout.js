@@ -1,11 +1,11 @@
 // client/src/app/layout.js
 import "./globals.css";
 import localFont from "next/font/local";
-import Header from "@/components/common/header/header";
-import QueryProvider from "@/components/providers/queryProvider";
-import ZustandProvider from "@/components/providers/zustandProvider";
-import MobileMenu from "@/components/common/navbar/mobile/mobileMenu";
-import MobileSearch from "@/components/common/navbar/mobile/mobileSearch";
+import Header from "../components/common/header/header";
+import QueryProvider from "../components/providers/queryProvider";
+import ZustandProvider from "../components/providers/zustandProvider";
+import MobileMenu from "../components/common/navbar/mobile/mobileMenu";
+import MobileSearch from "../components/common/navbar/mobile/mobileSearch";
 
 const lexend = localFont({
   src: [

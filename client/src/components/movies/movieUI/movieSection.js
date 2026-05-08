@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMovies } from "@/utils/hooks/useMovie";
+import { useMovies } from "../../../utils/hooks/useMovie";
 import MovieCard from "./movieCards";
 import MovieCardSkeleton from "./movieCardSkeletons";
 

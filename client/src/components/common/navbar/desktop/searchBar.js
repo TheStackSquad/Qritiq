@@ -4,8 +4,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X, Flame, Star, Clock } from "lucide-react";
-import { useSearch } from "@/utils/hooks/useKritiQ";
-import { getPosterUrl } from "@/services/cloudinary/upload/urlBuilders";
+import { useSearch } from "../../../../utils/hooks/useKritiQ";
+import { getPosterUrl } from "../../../../services/cloudinary/upload/urlBuilders";
 import Link from "next/link";
 import Image from "next/image";
 

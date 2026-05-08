@@ -3,11 +3,11 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useSearch } from "@/utils/hooks/useKritiQ";
-import SearchInput from "@/components/common/search/searchInput";
-import SearchResultCard from "@/components/common/search/searchResultCard";
-import SearchResultsSkeleton from "@/components/common/search/searchResultsSkeleton";
-import Footer from "@/components/home/footer/index";
+import { useSearch } from "../../../utils/hooks/useKritiQ";
+import SearchInput from "../../../components/common/search/searchInput";
+import SearchResultCard from "../../../components/common/search/searchResultCard";
+import SearchResultsSkeleton from "../../../components/common/search/searchResultsSkeleton";
+import Footer from "../../../components/home/footer/index";
 
 const FILTERS = [
   { label: "All", value: "all" },

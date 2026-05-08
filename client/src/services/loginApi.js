@@ -1,7 +1,7 @@
 //client/services/loginApi.js
 
-import api from "@/apiClient/tokenRefresh";
-import { AUTH_ROUTES } from "@/constants/routes";
+import api from "../apiClient/tokenRefresh";
+import { AUTH_ROUTES } from "../constants/routes";
 
 // ─── Login ────────────────────────────────────────────────────────
 export async function loginAPI({ email, password }) {

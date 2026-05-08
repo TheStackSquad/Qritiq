@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useMovie } from "@/utils/hooks/useMovie";
+import { useMovie } from "../../../utils/hooks/useMovie";
 import MovieHero from "./movieHero";
 import MovieScores from "./movieScores";
 import MovieMeta from "./movieMeta";
@@ -10,7 +10,7 @@ import MovieVoting from "./movieVoting";
 import MovieTrailer from "./movieTrailer";
 import MovieStreaming from "./movieStreaming";
 import MovieDetailSkeleton from "./movieDetailSkeleton";
-import Footer from "@/components/home/footer/index";
+import Footer from "../../../components/home/footer/index";
 
 export default function MovieDetailPage({ slug }) {
   const { data: movie, isLoading, error } = useMovie(slug);

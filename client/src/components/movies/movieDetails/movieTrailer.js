@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { Play } from "lucide-react";
 import Image from "next/image";
-import { useEngage } from "@/utils/hooks/useEngagement";
+import { useEngage } from "../../../utils/hooks/useEngagement";
 
 export default function MovieTrailer({ movie }) {
   const [playing, setPlaying] = useState(false);

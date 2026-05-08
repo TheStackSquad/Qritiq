@@ -3,7 +3,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import api from "@/apiClient/tokenRefresh";
+import api from "../../apiClient/tokenRefresh";
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 // Kept local — trending keys don't need to be invalidated by other hooks,

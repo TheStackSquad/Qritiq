@@ -1,4 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+#client/.gitignore
+
 
 # dependencies
 /node_modules

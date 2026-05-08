@@ -3,10 +3,10 @@
 
 import { Search, X, Menu, User } from "lucide-react";
 import Link from "next/link";
-import useAuthStore from "@/sessions/userSessions";
-import useUIStore from "@/sessions/uiStore";
+import useAuthStore from "../../../../sessions/userSessions";
+import useUIStore from "../../../../sessions/uiStore";
 import Image from "next/image";
-import { getAvatarUrl } from "@/services/cloudinary/upload/urlBuilders";
+import { getAvatarUrl } from "../../../../services/cloudinary/upload/urlBuilders";
 
 export default function MobileNav() {
   const { user, isAuthenticated } = useAuthStore();

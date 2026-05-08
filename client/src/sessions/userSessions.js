@@ -1,4 +1,4 @@
-//client/sessions/userSessions.js
+//client/src/sessions/userSessions.js
 
 import { create } from "zustand";
 import Cookies from "js-cookie";

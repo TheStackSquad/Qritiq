@@ -7,9 +7,9 @@ import { Search, X, Flame, Star, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useSearch } from "@/utils/hooks/useKritiQ";
-import { getPosterUrl } from "@/services/cloudinary/upload/urlBuilders";
-import useUIStore from "@/sessions/uiStore";
+import { useSearch } from "../../../../utils/hooks/useKritiQ";
+import { getPosterUrl } from "../../../../services/cloudinary/upload/urlBuilders";
+import useUIStore from "../../../../sessions/uiStore";
 import clsx from "clsx";
 
 // Helper: Format release status for display

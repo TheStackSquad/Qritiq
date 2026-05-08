@@ -2,8 +2,8 @@
 // Server component shell — layout and hero are static, MovieSection is client.
 // This means the page HTML arrives instantly; the grid hydrates separately.
 
-import Footer from "@/components/home/footer/index";
-import MovieSection from "@/components/movies/movieUI/movieSection";
+import Footer from "../components/home/footer/index";
+import MovieSection from "../components/movies/movieUI/movieSection";
 import Link from "next/link";
 
 export default function HomePage() {

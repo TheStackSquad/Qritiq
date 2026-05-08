@@ -4,7 +4,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Flame, Star } from "lucide-react";
-import { getPosterUrl } from "@/services/cloudinary/upload/urlBuilders";
+import { getPosterUrl } from "../../../services/cloudinary/upload/urlBuilders";
 
 // ─── Helpers ──────────────────────────────────────────────────────
 

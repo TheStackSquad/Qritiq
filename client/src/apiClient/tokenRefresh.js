@@ -2,7 +2,7 @@
 
 import Cookies from "js-cookie";
 import api from "./api";
-import { AUTH_ROUTES } from "@/constants/routes";
+import { AUTH_ROUTES } from "../constants/routes";
 import "./interceptor";
 
 

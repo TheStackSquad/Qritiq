@@ -3,8 +3,8 @@
 
 import { useState } from "react";
 import { Star } from "lucide-react";
-import { useRate } from "@/utils/hooks/useRate";
-import useAuthStore from "@/sessions/userSessions";
+import { useRate } from "../../../utils/hooks/useRate";
+import useAuthStore from "../../../sessions/userSessions";
 
 // ─── Star rating ──────────────────────────────────────────────────────────────
 // Tap to rate 1–5. Tap active star again to clear.

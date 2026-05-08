@@ -3,7 +3,7 @@
 "use client";
 
 import { Suspense } from "react";
-import SearchPage from "@/components/common/search/searchPage";
+import SearchPage from "../../components/common/search/searchPage";
 
 export default function SearchRoute() {
   return (

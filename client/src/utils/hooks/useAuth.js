@@ -2,8 +2,8 @@
 //client/utils/hooks/useAuth.js
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { loginAPI, signupAPI, logoutAPI } from "@/services/loginApi";
-import useAuthStore from "@/sessions/userSessions";
+import { loginAPI, signupAPI, logoutAPI } from "../../services";
+import useAuthStore from "../../sessions/userSessions";
 
 export function useLogin() {
   const setSession = useAuthStore((s) => s.setSession);

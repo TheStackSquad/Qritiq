@@ -2,7 +2,7 @@
 //client/utils/hooks/useMovie.js
 
 import { useQuery } from "@tanstack/react-query";
-import api from "@/apiClient/tokenRefresh";
+import api from "../../apiClient/tokenRefresh";
 import { QUERY_KEYS } from "./useKritiQ";
 
 
