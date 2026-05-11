@@ -1,5 +1,10 @@
-// client/app/(auth)/signup/page.js
 "use client";
+
+// src/app/(auth)/signup/page.js
+// Three distinct layouts:
+//   Mobile  (<768px)  — glass card floats over full-bleed blurred hero
+//   Tablet  (768-1023px) — hero top band, form card overlaps from below
+//   Desktop (1024px+) — 50/50 split, sticky slideshow left, form right
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -7,10 +12,11 @@ import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import useAuthStore from "../../../sessions/userSessions";
 import { signupAPI } from "../../../services/loginApi";
-import HeroPoster from "../../../components/auth/heroposter";
+import AuthHero from "../../../components/auth/authHero";
 import SignupFields from "./signupFields";
 import { RULES } from "./passwordRules";
-import { authSharedStyles, pwRuleStyles } from "./styles";
+import { authSharedStyles } from "../login/authStyles";
+import { pwRuleStyles, signupLayoutStyles } from "./styles";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -28,12 +34,10 @@ export default function SignupPage() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
     if (!allRulesPassed) {
       setError("Please meet all password requirements.");
       return;
     }
-
     setLoading(true);
     try {
       const data = await signupAPI(form);
@@ -51,24 +55,36 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="auth-page">
-      {/* ── Left: cinematic hero panel ── */}
-      <div className="auth-hero">
-        <HeroPoster />
+    <div className="signup-root">
+      {/* ── Mobile hero background (hidden on tablet+) ─────── */}
+      <div className="mobile-hero-bg" aria-hidden="true">
+        <AuthHero />
       </div>
 
-      {/* ── Right: form panel ── */}
-      <div className="auth-form-panel">
-        <div className="auth-form-inner">
-          {/* Mobile-only logo */}
-          <Link href="/" className="auth-mobile-logo">
+      {/* ── Desktop / Tablet hero panel ──────────────────────── */}
+      <div className="hero-panel">
+        <AuthHero />
+      </div>
+
+      {/* ── Tablet hero band (top strip) ─────────────────────── */}
+      <div className="tablet-hero-band" aria-hidden="true">
+        <AuthHero />
+      </div>
+
+      {/* ── Form area ─────────────────────────────────────────── */}
+      <div className="form-panel">
+        <div className="form-card">
+          {/* Mobile logo inside card */}
+          <Link href="/" className="card-logo">
             KritiQ
           </Link>
 
           <div className="auth-heading">
             <h1>Join the movement</h1>
             <p>
-              Rate films and music before they drop. Your voice shapes culture.
+              Rate films and music before they drop.
+              <br />
+              Your voice shapes culture.
             </p>
           </div>
 
@@ -106,7 +122,9 @@ export default function SignupPage() {
       </div>
 
       <style jsx>{`
-        ${authSharedStyles}${pwRuleStyles}
+        ${authSharedStyles}
+        ${pwRuleStyles}
+        ${signupLayoutStyles}
       `}</style>
     </div>
   );

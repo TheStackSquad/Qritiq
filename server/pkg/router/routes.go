@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/qritiq/server/pkg/handlers"
 	"github.com/qritiq/server/pkg/middleware"
-//	"github.com/qritiq/server/pkg/repository"
 	"github.com/qritiq/server/pkg/services"
 	cloudsvc "github.com/qritiq/server/pkg/services/cloudinary"
 	"github.com/redis/go-redis/v9"
@@ -22,6 +21,8 @@ func New(
 	engSvc       *services.EngagementService,
 	analyticsSvc *services.AnalyticsService,
 	trendingSvc  *services.TrendingService,
+	arenaSvc     *services.ArenaService,
+	spotlightSvc *services.SpotlightService,
 	cloud        *cloudsvc.Client,
 	rdb          *redis.Client,
 ) *gin.Engine {
@@ -52,12 +53,14 @@ func New(
 
 	// ─── Handlers ─────────────────────────────────────────────────────────
 
-	authH      := handlers.NewAuthHandler(authSvc)
-	movieH     := handlers.NewMovieHandler(movieSvc)
-	engH       := handlers.NewEngagementHandler(engSvc)
-	analyticsH := handlers.NewAnalyticsHandler(analyticsSvc)
-	mediaH     := handlers.NewMediaHandler(cloud)
-	trendingH  := handlers.NewTrendingHandler(trendingSvc)
+	authH       := handlers.NewAuthHandler(authSvc)
+	movieH      := handlers.NewMovieHandler(movieSvc)
+	engH        := handlers.NewEngagementHandler(engSvc)
+	analyticsH  := handlers.NewAnalyticsHandler(analyticsSvc)
+	mediaH      := handlers.NewMediaHandler(cloud)
+	trendingH   := handlers.NewTrendingHandler(trendingSvc)
+	arenaH      := handlers.NewArenaHandler(arenaSvc)
+	spotlightH  := handlers.NewSpotlightHandler(spotlightSvc)
 
 	// ─── API v1 ───────────────────────────────────────────────────────────
 
@@ -84,6 +87,11 @@ func New(
 		content.GET("/movies",        movieH.List)
 		content.GET("/movies/search", movieH.Search)
 		content.GET("/movies/:slug",  movieH.GetBySlug)
+
+		// Music — public reads (handlers wired in Layer 5 client work)
+		// content.GET("/music",         musicH.List)
+		// content.GET("/music/search",  musicH.Search)
+		// content.GET("/music/:slug",   musicH.GetBySlug)
 	}
 
 	// ── Trending — public, cached ─────────────────────────────────────────
@@ -94,6 +102,37 @@ func New(
 		trending.GET("/hype-radar",    trendingH.HypeRadar)
 		trending.GET("/verdict-split", trendingH.VerdictSplit)
 	}
+
+	// ── Arena — public reads, auth required for voting ────────────────────
+
+	arena := api.Group("/arena")
+	arena.Use(middleware.RateLimit(rdb, 60.0/60, 30))
+	{
+		// Public
+		arena.GET("",                  middleware.OptionalAuth(authSvc), arenaH.GetArena)
+		arena.GET("/battles/:id",      middleware.OptionalAuth(authSvc), arenaH.GetBattle)
+		arena.GET("/leaderboard",      arenaH.GetLeaderboard)
+
+		// Auth required
+		arena.POST("/vote", middleware.RequireAuth(authSvc),
+			middleware.RateLimit(rdb, 30.0/60, 10),
+			arenaH.Vote,
+		)
+	}
+
+	// ── Spotlight — public reads ──────────────────────────────────────────
+
+	spotlight := api.Group("/spotlight")
+	spotlight.Use(middleware.RateLimit(rdb, 60.0/60, 30))
+	{
+		spotlight.GET("",       spotlightH.GetSpotlight)
+		spotlight.GET("/:slug", spotlightH.GetPerson)
+	}
+
+	
+	snippets := api.Group("/music")
+	snippets.Use(middleware.OptionalAuth(authSvc))
+	snippets.POST("/:id/play", engH.RecordSnippetPlay)
 
 	// ── Engage ────────────────────────────────────────────────────────────
 

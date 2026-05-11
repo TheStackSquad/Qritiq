@@ -13,6 +13,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/qritiq/server/pkg/db"
+	"github.com/qritiq/server/pkg/model"
 	"github.com/qritiq/server/pkg/repository"
 	"github.com/qritiq/server/pkg/router"
 	"github.com/qritiq/server/pkg/services"
@@ -57,7 +58,11 @@ func main() {
 	refreshTokenRepo := repository.NewRefreshTokenRepo(postgres)
 	blacklistRepo    := repository.NewTokenBlacklistRepo(postgres)
 	analyticsRepo    := repository.NewAnalyticsRepository(postgres)
-	trendingRepo     := repository.NewTrendingRepo(postgres)       // ← new
+	trendingRepo     := repository.NewTrendingRepo(postgres)
+	battleRepo       := repository.NewBattleRepo(postgres)
+	arenaRepo        := repository.NewArenaRepo(postgres)
+	personRepo       := repository.NewPersonRepo(postgres)
+	streetPullRepo   := repository.NewStreetPullRepo(postgres)
 
 	_ = musicRepo
 
@@ -79,15 +84,36 @@ func main() {
 		rdb,
 	)
 
+	// streetPullSvc and spotlightSvc must be constructed before engSvc
+	// because engSvc depends on both
+	streetPullSvc := services.NewStreetPullService(streetPullRepo)
+	spotlightSvc  := services.NewSpotlightService(personRepo)
+
 	engSvc := services.NewEngagementService(
 		engagementRepo,
 		ratingRepo,
 		rdb,
 		ipSvc,
+		streetPullSvc,
+		spotlightSvc,
 	)
 
 	analyticsSvc := services.NewAnalyticsService(analyticsRepo)
-	trendingSvc  := services.NewTrendingService(trendingRepo, rdb) // ← new
+	trendingSvc  := services.NewTrendingService(trendingRepo, rdb)
+
+	arenaSvc := services.NewArenaService(
+		battleRepo,
+		arenaRepo,
+		model.DefaultSchedulerConfig(),
+	)
+
+	// ─── Scheduler ────────────────────────────────────────────────────────
+	// Context tied to process lifetime — cancelled by defer stopScheduler()
+	// which fires before graceful shutdown completes.
+
+	schedulerCtx, stopScheduler := context.WithCancel(context.Background())
+	defer stopScheduler()
+	arenaSvc.StartScheduler(schedulerCtx)
 
 	// ─── Router ───────────────────────────────────────────────────────────
 
@@ -96,7 +122,9 @@ func main() {
 		movieSvc,
 		engSvc,
 		analyticsSvc,
-		trendingSvc,   // ← new
+		trendingSvc,
+		arenaSvc,
+		spotlightSvc,
 		cloudClient,
 		rdb,
 	)
