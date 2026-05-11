@@ -1,5 +1,9 @@
-// src/app/(auth)/login/loginForm.js
 "use client";
+
+// src/app/(auth)/login/loginForm.js
+// Renders only the form content — heading, fields, submit, links.
+// Layout and logo are handled by login/page.js (the card wrapper).
+// Wrapped in Suspense by page.js because useSearchParams() is used here.
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -12,8 +16,6 @@ import { resolveRedirect } from "../../../utils/hooks/resolveRedirect";
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // Get redirect param from URL (e.g., /login?redirect=/movies/some-movie)
   const redirectPath = searchParams.get("redirect") || "/";
   const setSession = useAuthStore((s) => s.setSession);
 
@@ -30,7 +32,6 @@ export default function LoginForm() {
     setError("");
     setLoading(true);
 
-    // Sanitize input to avoid strict backend binding errors
     const payload = {
       email: form.email.trim().toLowerCase(),
       password: form.password,
@@ -38,19 +39,12 @@ export default function LoginForm() {
 
     try {
       const data = await loginAPI(payload);
-
-      // 1. Clear form immediately on success
       setForm({ email: "", password: "" });
-
-      // 2. Persist session (Zustand + Cookies)
       setSession(data);
-
-      // 3. Navigate using centralized redirect logic
       const destination = resolveRedirect(redirectPath, data.user?.role);
       router.push(destination);
     } catch (err) {
-      const message = err.response?.data?.error || "Invalid email or password.";
-      setError(message);
+      setError(err.response?.data?.error || "Invalid email or password.");
     } finally {
       setLoading(false);
     }
@@ -58,11 +52,7 @@ export default function LoginForm() {
 
   return (
     <>
-      {/* Mobile-only logo */}
-      <Link href="/" className="auth-mobile-logo">
-        KritiQ
-      </Link>
-
+      {/* Heading */}
       <div className="auth-heading">
         <h1>Welcome back</h1>
         <p>Sign in to rate, hype, and track Nollywood &amp; Afrobeats.</p>
@@ -118,15 +108,14 @@ export default function LoginForm() {
           </div>
         </div>
 
-        {/* Error message */}
+        {/* Error */}
         {error && <p className="form-error">{error}</p>}
 
         {/* Submit */}
         <button type="submit" className="btn-submit" disabled={loading}>
           {loading ? (
             <>
-              <Loader2 size={16} className="spin" />
-              Signing in…
+              <Loader2 size={16} className="spin" /> Signing in…
             </>
           ) : (
             "Sign in"

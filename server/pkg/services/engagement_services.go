@@ -1,10 +1,12 @@
 // server/pkg/services/engagement_services.go
+// Updated: hooks StreetPullService and SpotlightService after engagement/rating events
 
 package services
 
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -16,31 +18,39 @@ import (
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 type EngagementService struct {
-	engRepo    *repository.EngagementRepo
-	ratingRepo *repository.RatingRepo
-	redis      *redis.Client
-	ipSvc      *IPService
+	engRepo        *repository.EngagementRepo
+	ratingRepo     *repository.RatingRepo
+	redis          *redis.Client
+	ipSvc          *IPService
+	streetPullSvc  *StreetPullService  // recomputes street_pull_score after each event
+	spotlightSvc   *SpotlightService   // refreshes person scores after each event
 }
 
 func NewEngagementService(
-	engRepo    *repository.EngagementRepo,
-	ratingRepo *repository.RatingRepo,
-	rdb        *redis.Client,
-	ipSvc      *IPService,
+	engRepo       *repository.EngagementRepo,
+	ratingRepo    *repository.RatingRepo,
+	rdb           *redis.Client,
+	ipSvc         *IPService,
+	streetPullSvc *StreetPullService,
+	spotlightSvc  *SpotlightService,
 ) *EngagementService {
 	return &EngagementService{
-		engRepo:    engRepo,
-		ratingRepo: ratingRepo,
-		redis:      rdb,
-		ipSvc:      ipSvc,
+		engRepo:       engRepo,
+		ratingRepo:    ratingRepo,
+		redis:         rdb,
+		ipSvc:         ipSvc,
+		streetPullSvc: streetPullSvc,
+		spotlightSvc:  spotlightSvc,
 	}
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 // Submit processes a like, dislike, hype, meh, flop, or watch engagement.
-// Hype-type and like-type votes toggle — same type removes the vote,
-// different type replaces it. One vote per category per user per content.
+// After the engagement is recorded:
+//   - street_pull_score is recomputed for the content (single-row, fast)
+//   - person scores are refreshed for credited persons (small N, acceptable)
+//   - Redis cache is invalidated
 func (s *EngagementService) Submit(
 	ctx context.Context,
 	input model.EngagementInput,
@@ -59,8 +69,7 @@ func (s *EngagementService) Submit(
 	engType := model.EngagementType(input.EngagementType)
 	weight  := model.VoteWeightMap[userRole]
 
-	// ── Hype toggle — hype / meh / flop ──────────────────────────────────
-	// Same type → toggle off. Different type → delete old, insert new.
+	// ── Hype toggle ───────────────────────────────────────────────────────────
 	if userID != nil && isHypeType(engType) {
 		exists, existingType, err := s.engRepo.GetExistingHypeVote(ctx, *userID, contentID, input.ContentType)
 		if err != nil {
@@ -72,14 +81,14 @@ func (s *EngagementService) Submit(
 			}
 			s.invalidateCache(ctx, input.ContentID)
 			if existingType == engType {
-				return false, nil // toggled off — done
+				// Toggled off — recompute score after deletion
+				s.recomputeAsync(ctx, contentID, input.ContentType)
+				return false, nil
 			}
-			// Different type — fall through to insert
 		}
 	}
 
-	// ── Like toggle — like / dislike ──────────────────────────────────────
-	// Same type → toggle off. Different type → delete old, insert new.
+	// ── Like toggle ───────────────────────────────────────────────────────────
 	if userID != nil && isLikeType(engType) {
 		exists, existingType, err := s.engRepo.GetExistingLikeVote(ctx, *userID, contentID, input.ContentType)
 		if err != nil {
@@ -91,13 +100,13 @@ func (s *EngagementService) Submit(
 			}
 			s.invalidateCache(ctx, input.ContentID)
 			if existingType == engType {
-				return false, nil // toggled off — done
+				s.recomputeAsync(ctx, contentID, input.ContentType)
+				return false, nil
 			}
-			// Different type — fall through to insert
 		}
 	}
 
-	// ── Insert ────────────────────────────────────────────────────────────
+	// ── Insert ────────────────────────────────────────────────────────────────
 	eng := &model.Engagement{
 		UserID:         userID,
 		ContentID:      contentID,
@@ -118,13 +127,19 @@ func (s *EngagementService) Submit(
 
 	if isNew {
 		s.invalidateCache(ctx, input.ContentID)
+
+		// Recompute street pull score — single row, fast
+		s.recomputeAsync(ctx, contentID, input.ContentType)
+
+		// Refresh person scores for credited persons on this content
+		s.refreshPersonsAsync(ctx, contentID, input.ContentType)
 	}
 
 	return isNew, nil
 }
 
 // SubmitRating submits or updates a post-release star rating (1.0–5.0).
-// The DB trigger recalculates rating_score automatically on upsert.
+// Triggers street_pull_score recompute and person score refresh.
 func (s *EngagementService) SubmitRating(
 	ctx context.Context,
 	input model.RatingInput,
@@ -136,8 +151,6 @@ func (s *EngagementService) SubmitRating(
 		return fmt.Errorf("invalid content_id")
 	}
 
-	// Derive rating role from authenticated user's platform role.
-	// Never trust the client to self-identify as a critic.
 	ratingRole := "user"
 	if userRole == model.RoleCritic {
 		ratingRole = "critic"
@@ -157,6 +170,13 @@ func (s *EngagementService) SubmitRating(
 	}
 
 	s.invalidateCache(ctx, input.ContentID)
+
+	// Recompute street pull — rating weight is 0.80, meaningful signal
+	s.recomputeAsync(ctx, contentID, input.ContentType)
+
+	// Refresh person scores — ratings on works affect person avg_rating
+	s.refreshPersonsAsync(ctx, contentID, input.ContentType)
+
 	return nil
 }
 
@@ -175,4 +195,35 @@ func (s *EngagementService) invalidateCache(ctx context.Context, contentID strin
 		fmt.Sprintf(db.KeyMovieCard, contentID),
 		fmt.Sprintf(db.KeyMusicCard, contentID),
 	)
+}
+
+// recomputeAsync recomputes street_pull_score in a goroutine.
+// Fire-and-forget — a failure here does not affect the engagement response.
+// Score will self-correct on next event or nightly bulk recompute.
+func (s *EngagementService) recomputeAsync(
+	ctx context.Context,
+	contentID uuid.UUID,
+	contentType string,
+) {
+	go func() {
+		if err := s.streetPullSvc.RecomputeOne(ctx, contentID, contentType); err != nil {
+			log.Printf("[engagement] recompute_street_pull %s %s: %v",
+				contentType, contentID, err)
+		}
+	}()
+}
+
+// refreshPersonsAsync refreshes person scores in a goroutine.
+// Fire-and-forget — person scores are eventually consistent, not real-time.
+func (s *EngagementService) refreshPersonsAsync(
+	ctx context.Context,
+	contentID uuid.UUID,
+	contentType string,
+) {
+	go func() {
+		if err := s.spotlightSvc.RefreshScoresForContent(ctx, contentID, contentType); err != nil {
+			log.Printf("[engagement] refresh_persons %s %s: %v",
+				contentType, contentID, err)
+		}
+	}()
 }

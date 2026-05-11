@@ -73,41 +73,46 @@ func (h *EngagementHandler) SubmitRating(c *gin.Context) {
 	c.JSON(http.StatusOK, utils.SuccessResponse("rating submitted", nil))
 }
 
-// SubmitWatch records a view/watch event.
-// Accepts optional auth — guests can contribute view counts.
-// Only the "watch" engagement type is accepted on this route.
-// func (h *EngagementHandler) SubmitWatch(c *gin.Context) {
-// 	var input model.EngagementInput
-// 	if err := c.ShouldBindJSON(&input); err != nil {
-// 		c.JSON(http.StatusBadRequest, utils.ErrorResponse(err.Error()))
-// 		return
-// 	}
+// RecordSnippetPlay handles POST /music/:id/play
 
-// 	// Enforce — this route is watch-only regardless of what's sent
-// 	if input.EngagementType != "watch" {
-// 		c.JSON(http.StatusBadRequest, utils.ErrorResponse("this endpoint only accepts watch events"))
-// 		return
-// 	}
+func (h *EngagementHandler) RecordSnippetPlay(c *gin.Context) {
+	contentID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, utils.ErrorResponse("invalid content id"))
+		return
+	}
 
-// 	var userID *uuid.UUID
-// 	var userRole model.UserRole = model.RoleGuest
+	// Optional Auth — user might be a guest
+	var userID *uuid.UUID
+	if id, exists := c.Get(middleware.CtxUserID); exists {
+		uid := id.(uuid.UUID)
+		userID = &uid
+	}
 
-// 	if id, exists := c.Get(middleware.CtxUserID); exists {
-// 		uid := id.(uuid.UUID)
-// 		userID = &uid
-// 	}
-// 	if role, exists := c.Get(middleware.CtxUserRole); exists {
-// 		userRole = model.UserRole(role.(string))
-// 	}
+	sessionID, _ := c.Get(middleware.CtxSessionID)
+	sid, _ := sessionID.(string)
 
-// 	sessionID, _ := c.Get(middleware.CtxSessionID)
-// 	sid, _ := sessionID.(string)
+	// We treat a snippet play as a "watch" engagement type internally
+	input := model.EngagementInput{
+    ContentID:      contentID.String(),
+    ContentType:    "music",
+    EngagementType: "watch",
+}
 
-// 	isNew, err := h.engSvc.Submit(c.Request.Context(), input, userID, sid, c.ClientIP(), userRole)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, utils.ErrorResponse(err.Error()))
-// 		return
-// 	}
+	// Use existing Submit logic to record the play
+	_, err = h.engSvc.Submit(
+		c.Request.Context(),
+		input,
+		userID,
+		sid,
+		c.ClientIP(),
+		model.RoleGuest, // Default to guest, service handles elevated weights via userID
+	)
 
-// 	c.JSON(http.StatusOK, utils.SuccessResponse("ok", gin.H{"recorded": isNew}))
-// }
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.ErrorResponse(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.SuccessResponse("play recorded", nil))
+}
