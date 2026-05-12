@@ -1,10 +1,8 @@
 /** @type {import('next').NextConfig} */
 
-const isDev = process.env.NODE_ENV === "development";
+const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig = {
-  //output: "standalone",
-  // output: (process.env.NODE_ENV === "production" && { output: "standalone" }),
   // ─── Image Optimisation ──────────────────────────────────────
   // Cloudinary CDN serves WebP/AVIF automatically.
   // next/image handles lazy loading + blur placeholder.
@@ -36,6 +34,7 @@ const nextConfig = {
   // ─── Headers ─────────────────────────────────────────────────
   async headers() {
     return [
+      // ── Security headers — always applied ──────────────────
       {
         source: "/(.*)",
         headers: [
@@ -48,16 +47,24 @@ const nextConfig = {
           },
         ],
       },
-      {
-        // Long cache on static assets — they're content-hashed
-        source: "/_next/static/(.*)",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
+
+      // ── Static asset cache — production only ───────────────
+      // In development Next.js manages its own cache headers for
+      // hot reload and Fast Refresh to work correctly.
+      // Static files are content-hashed so immutable is safe in prod.
+      ...(isProd
+        ? [
+            {
+              source: "/_next/static/(.*)",
+              headers: [
+                {
+                  key: "Cache-Control",
+                  value: "public, max-age=31536000, immutable",
+                },
+              ],
+            },
+          ]
+        : []),
     ];
   },
 
