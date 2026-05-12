@@ -1,75 +1,41 @@
 "use client";
 
 // src/app/(auth)/login/page.js
-// Same three-viewport layout as signup:
-//   Mobile  (<768px)   — glass card over full-bleed hero
-//   Tablet  (768-1023) — hero band top, card overlaps
-//   Desktop (1024px+)  — 50/50 sticky hero + form
-//
-// LoginForm stays in Suspense — it calls useSearchParams() internally.
+// Imports auth.css directly — NO styled-jsx, no string injection.
+// This is why styles weren't applying before: styled-jsx string
+// interpolation of imported constants doesn't work in App Router.
 
 import { Suspense } from "react";
 import Link from "next/link";
 import LoginForm from "./loginForm";
 import AuthHero from "../../../components/auth/authHero";
-import { authSharedStyles } from "./authStyles";
-import { pwRuleStyles, signupLayoutStyles } from "../signup/styles";
+import "../auth.css";
 
 export default function LoginPage() {
   return (
     <div className="signup-root">
-      {/* ── Mobile hero background (fixed, full-bleed) ──────── */}
-      <div className="mobile-hero-bg" aria-hidden="true">
-        <AuthHero />
-      </div>
-
-      {/* ── Desktop sticky hero panel ────────────────────────── */}
+      {/* ── Suspended carousel panel (left) ─────────── */}
       <div className="hero-panel">
         <AuthHero />
       </div>
 
-      {/* ── Tablet top hero band ─────────────────────────────── */}
-      <div className="tablet-hero-band" aria-hidden="true">
-        <AuthHero />
-      </div>
-
-      {/* ── Form area ─────────────────────────────────────────── */}
+      {/* ── Form panel (right) ──────────────────────── */}
       <div className="form-panel">
         <div className="form-card">
-          {/* Logo — visible on mobile + tablet, hidden on desktop */}
+          {/* Logo — shown on mobile only (hidden on tablet+) */}
           <Link href="/" className="card-logo">
             KritiQ
           </Link>
 
-          {/* LoginForm handles its own heading, fields, submit, links */}
           <Suspense fallback={<LoginLoader />}>
             <LoginForm />
           </Suspense>
         </div>
       </div>
-
-      <style jsx>{`
-        ${authSharedStyles}
-        ${pwRuleStyles}
-        ${signupLayoutStyles}
-
-        /* Login-specific: forgot password link */
-        .forgot-link {
-          font-family: "Lexend", sans-serif;
-          font-size: 0.75rem;
-          color: var(--color-kritiq-ash);
-          text-decoration: none;
-          transition: color 0.15s;
-        }
-        .forgot-link:hover {
-          color: var(--color-kritiq-ember);
-        }
-      `}</style>
     </div>
   );
 }
 
-/* Suspense fallback — matches card width, no layout shift */
 function LoginLoader() {
   return (
     <div
@@ -80,15 +46,15 @@ function LoginLoader() {
         justifyContent: "center",
         gap: "16px",
         padding: "40px 0",
-        minHeight: "260px",
+        minHeight: "240px",
       }}
     >
       <div
         style={{
-          width: "36px",
-          height: "36px",
+          width: "34px",
+          height: "34px",
           borderRadius: "50%",
-          border: "3px solid rgba(192,0,26,0.15)",
+          border: "2.5px solid rgba(192,0,26,0.15)",
           borderTopColor: "#C0001A",
           animation: "spin 0.75s linear infinite",
         }}
@@ -96,8 +62,8 @@ function LoginLoader() {
       <p
         style={{
           fontFamily: "'Lexend', sans-serif",
-          fontSize: "13px",
-          color: "var(--color-kritiq-ash)",
+          fontSize: "12px",
+          color: "rgba(255,255,255,0.4)",
           margin: 0,
         }}
       >

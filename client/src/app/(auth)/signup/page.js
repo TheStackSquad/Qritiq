@@ -1,10 +1,8 @@
 "use client";
 
 // src/app/(auth)/signup/page.js
-// Three distinct layouts:
-//   Mobile  (<768px)  — glass card floats over full-bleed blurred hero
-//   Tablet  (768-1023px) — hero top band, form card overlaps from below
-//   Desktop (1024px+) — 50/50 split, sticky slideshow left, form right
+// Layout: suspended carousel card (left) + form (right).
+// Three viewports handled by signupLayoutStyles.
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,8 +13,7 @@ import { signupAPI } from "../../../services/loginApi";
 import AuthHero from "../../../components/auth/authHero";
 import SignupFields from "./signupFields";
 import { RULES } from "./passwordRules";
-import { authSharedStyles } from "../login/authStyles";
-import { pwRuleStyles, signupLayoutStyles } from "./styles";
+import "../auth.css";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -56,25 +53,15 @@ export default function SignupPage() {
 
   return (
     <div className="signup-root">
-      {/* ── Mobile hero background (hidden on tablet+) ─────── */}
-      <div className="mobile-hero-bg" aria-hidden="true">
-        <AuthHero />
-      </div>
-
-      {/* ── Desktop / Tablet hero panel ──────────────────────── */}
+      {/* ── Suspended carousel panel (left) ─────────── */}
       <div className="hero-panel">
         <AuthHero />
       </div>
 
-      {/* ── Tablet hero band (top strip) ─────────────────────── */}
-      <div className="tablet-hero-band" aria-hidden="true">
-        <AuthHero />
-      </div>
-
-      {/* ── Form area ─────────────────────────────────────────── */}
+      {/* ── Form panel (right) ──────────────────────── */}
       <div className="form-panel">
         <div className="form-card">
-          {/* Mobile logo inside card */}
+          {/* Logo — mobile only */}
           <Link href="/" className="card-logo">
             KritiQ
           </Link>
@@ -120,12 +107,6 @@ export default function SignupPage() {
           </p>
         </div>
       </div>
-
-      <style jsx>{`
-        ${authSharedStyles}
-        ${pwRuleStyles}
-        ${signupLayoutStyles}
-      `}</style>
     </div>
   );
 }

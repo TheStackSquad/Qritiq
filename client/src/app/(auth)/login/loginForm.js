@@ -1,9 +1,8 @@
 "use client";
 
 // src/app/(auth)/login/loginForm.js
-// Renders only the form content — heading, fields, submit, links.
-// Layout and logo are handled by login/page.js (the card wrapper).
-// Wrapped in Suspense by page.js because useSearchParams() is used here.
+// suppressHydrationWarning on inputs/buttons kills the fdprocessedid
+// hydration mismatch caused by password-manager browser extensions.
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -31,12 +30,10 @@ export default function LoginForm() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     const payload = {
       email: form.email.trim().toLowerCase(),
       password: form.password,
     };
-
     try {
       const data = await loginAPI(payload);
       setForm({ email: "", password: "" });
@@ -52,7 +49,6 @@ export default function LoginForm() {
 
   return (
     <>
-      {/* Heading */}
       <div className="auth-heading">
         <h1>Welcome back</h1>
         <p>Sign in to rate, hype, and track Nollywood &amp; Afrobeats.</p>
@@ -61,9 +57,9 @@ export default function LoginForm() {
       <form onSubmit={onSubmit} className="auth-form" noValidate>
         {/* Email */}
         <div className="field">
-          <label htmlFor="email">Email address</label>
+          <label htmlFor="login-email">Email address</label>
           <input
-            id="email"
+            id="login-email"
             name="email"
             type="email"
             autoComplete="email"
@@ -73,20 +69,21 @@ export default function LoginForm() {
             onChange={onChange}
             className={error ? "input-error" : ""}
             disabled={loading}
+            suppressHydrationWarning
           />
         </div>
 
         {/* Password */}
         <div className="field">
           <div className="field-label-row">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="login-password">Password</label>
             <Link href="/forgot-password" className="forgot-link">
               Forgot password?
             </Link>
           </div>
           <div className="input-icon-wrap">
             <input
-              id="password"
+              id="login-password"
               name="password"
               type={showPw ? "text" : "password"}
               autoComplete="current-password"
@@ -96,12 +93,14 @@ export default function LoginForm() {
               onChange={onChange}
               className={error ? "input-error" : ""}
               disabled={loading}
+              suppressHydrationWarning
             />
             <button
               type="button"
               className="pw-toggle"
               onClick={() => setShowPw((v) => !v)}
               aria-label={showPw ? "Hide password" : "Show password"}
+              suppressHydrationWarning
             >
               {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -112,7 +111,12 @@ export default function LoginForm() {
         {error && <p className="form-error">{error}</p>}
 
         {/* Submit */}
-        <button type="submit" className="btn-submit" disabled={loading}>
+        <button
+          type="submit"
+          className="btn-submit"
+          disabled={loading}
+          suppressHydrationWarning
+        >
           {loading ? (
             <>
               <Loader2 size={16} className="spin" /> Signing in…

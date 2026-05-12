@@ -1,5 +1,8 @@
-// client/app/(auth)/signup/signupFields.js
 "use client";
+
+// src/app/(auth)/signup/signupFields.js
+// suppressHydrationWarning on inputs/buttons silences the fdprocessedid
+// noise from password-manager browser extensions.
 
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
@@ -12,9 +15,9 @@ export default function SignupFields({ form, onChange, loading }) {
     <>
       {/* Email */}
       <div className="field">
-        <label htmlFor="email">Email address</label>
+        <label htmlFor="signup-email">Email address</label>
         <input
-          id="email"
+          id="signup-email"
           name="email"
           type="email"
           autoComplete="email"
@@ -23,14 +26,15 @@ export default function SignupFields({ form, onChange, loading }) {
           value={form.email}
           onChange={onChange}
           disabled={loading}
+          suppressHydrationWarning
         />
       </div>
 
       {/* Username */}
       <div className="field">
-        <label htmlFor="username">Username</label>
+        <label htmlFor="signup-username">Username</label>
         <input
-          id="username"
+          id="signup-username"
           name="username"
           type="text"
           autoComplete="username"
@@ -41,15 +45,16 @@ export default function SignupFields({ form, onChange, loading }) {
           value={form.username}
           onChange={onChange}
           disabled={loading}
+          suppressHydrationWarning
         />
       </div>
 
       {/* Password */}
       <div className="field">
-        <label htmlFor="password">Password</label>
+        <label htmlFor="signup-password">Password</label>
         <div className="input-icon-wrap">
           <input
-            id="password"
+            id="signup-password"
             name="password"
             type={showPw ? "text" : "password"}
             autoComplete="new-password"
@@ -58,18 +63,19 @@ export default function SignupFields({ form, onChange, loading }) {
             value={form.password}
             onChange={onChange}
             disabled={loading}
+            suppressHydrationWarning
           />
           <button
             type="button"
             className="pw-toggle"
             onClick={() => setShowPw((v) => !v)}
             aria-label={showPw ? "Hide password" : "Show password"}
+            suppressHydrationWarning
           >
             {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
 
-        {/* Strength checklist */}
         <PasswordRuleList password={form.password} />
       </div>
     </>

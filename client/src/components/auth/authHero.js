@@ -1,270 +1,277 @@
 "use client";
 
-// src/components/auth/authHero.js
-// CSS-only slideshow hero panel for login + signup pages.
-// Uses public/KritiQ/AccountHero/ — no Cloudinary, no JS libs.
-// 7 images × 5s = 35s full cycle. Ken Burns zoom + crossfade.
+import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
 
 const SLIDES = [
-  { src: "/KritiQ/AccountHero/hero1.jpg" },
-  { src: "/KritiQ/AccountHero/hero2.jpg" },
-  { src: "/KritiQ/AccountHero/hero3.jpg" },
-  { src: "/KritiQ/AccountHero/hero4.jpg" },
-  { src: "/KritiQ/AccountHero/hero5.webp" },
-  { src: "/KritiQ/AccountHero/hero6.jpg" },
-  { src: "/KritiQ/AccountHero/hero7.jpg" },
+  {
+    img: "/KritiQ/AccountHero/hero1.jpg",
+    gradient: "linear-gradient(145deg,#1a0005 0%,#5c000d 50%,#c0001a 100%)",
+    label: "2.0x Influence Score",
+    sub: "Your verdict carries double the weight. Pro status amplifies your impact on the Street Pull leaderboard.",
+  },
+  {
+    img: "/KritiQ/AccountHero/hero2.jpg",
+    gradient: "linear-gradient(145deg,#000a1a 0%,#002244 50%,#0055cc 100%)",
+    label: "Geographic Heatmaps",
+    sub: "Go beyond total views. Track exactly where your hype is peaking—from Lagos Mainland to the streets of Enugu.",
+  },
+  {
+    img: "/KritiQ/AccountHero/hero3.jpg",
+    gradient: "linear-gradient(145deg,#0d0005 0%,#3b0033 50%,#8b0057 100%)",
+    label: "The Arena Verdict",
+    sub: "Vote in weekly face-offs and use Pro Review Tags like 'Award-worthy' or 'Overrated' to lead the culture.",
+  },
+  {
+    img: "/KritiQ/AccountHero/hero4.jpg",
+    gradient: "linear-gradient(145deg,#001a0a 0%,#004020 50%,#006633 100%)",
+    label: "Street Pull Analytics",
+    sub: "Master the algorithm. Track how snippet plays, likes, and hype votes fuse into a single power score.",
+  },
+  {
+    img: "/KritiQ/AccountHero/hero5.webp",
+    gradient: "linear-gradient(145deg,#1a1a00 0%,#404000 50%,#808000 100%)",
+    label: "30-Day Growth Snapshots",
+    sub: "Analyze the trend. Use daily data snapshots to see exactly when a project goes from 'Meh' to 'Must-Watch'.",
+  },
+  {
+    img: "/KritiQ/AccountHero/hero6.jpg",
+    gradient: "linear-gradient(145deg,#1a001a 0%,#440044 50%,#990099 100%)",
+    label: "Verified Spotlight",
+    sub: "Claim your personhood. Verified creators and crew get featured profiles with aggregated hype across all works.",
+  },
+  {
+    img: "/KritiQ/AccountHero/hero7.jpg",
+    gradient: "linear-gradient(145deg,#001a1a 0%,#004444 50%,#008888 100%)",
+    label: "Sentiment Deep-Dive",
+    sub: "Move beyond the star rating. Filter reviews by specific cultural tags to hear what the streets are really saying.",
+  },
+  {
+    img: "/KritiQ/AccountHero/hero8.jpg",
+    gradient: "linear-gradient(145deg,#1a0d00 0%,#442200 50%,#884400 100%)",
+    label: "Matchmaking Transparency",
+    sub: "See the 'Why'. Access the Tier-based logic and match reasons behind every Arena battle.",
+  },
 ];
 
-const TOTAL = SLIDES.length; // 7
-const DURATION = TOTAL * 5; // 35s total cycle
-const PER_SLIDE = DURATION / TOTAL; // 5s each
+const INTERVAL = 4500;
 
 export default function AuthHero() {
+  const [current, setCurrent] = useState(0);
+  const [imgFailed, setImgFailed] = useState(() =>
+    new Array(SLIDES.length).fill(false),
+  );
+  const timerRef = useRef(null);
+  const rootRef = useRef(null);
+  const pausedRef = useRef(false);
+
+  const advance = useCallback(() => {
+    setCurrent((c) => (c + 1) % SLIDES.length);
+  }, []);
+
+  const startTimer = useCallback(() => {
+    window.clearInterval(timerRef.current);
+    timerRef.current = window.setInterval(advance, INTERVAL);
+  }, [advance]);
+
+  useEffect(() => {
+    // Explicitly check for window to satisfy linter/SSR
+    if (typeof window === "undefined") return;
+
+    const io = new window.IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          pausedRef.current = false;
+          startTimer();
+        } else {
+          pausedRef.current = true;
+          window.clearInterval(timerRef.current);
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    if (rootRef.current) io.observe(rootRef.current);
+    startTimer();
+
+    return () => {
+      io.disconnect();
+      window.clearInterval(timerRef.current);
+    };
+  }, [startTimer]);
+
+  const goTo = (idx) => {
+    setCurrent(idx);
+    startTimer();
+  };
+
+  const markFailed = (idx) => {
+    setImgFailed((prev) => {
+      const next = [...prev];
+      next[idx] = true;
+      return next;
+    });
+  };
+
   return (
-    <div className="hero-root" aria-hidden="true">
-      {/* Slideshow */}
-      <div className="slides">
-        {SLIDES.map((slide, i) => (
-          <div
-            key={slide.src}
-            className="slide"
-            style={{ animationDelay: `${i * PER_SLIDE}s` }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={slide.src} alt="" className="slide-img" />
+    <div className="hero-carousel" ref={rootRef} aria-label="KritiQ highlights">
+      {SLIDES.map((slide, idx) => (
+        <div
+          key={idx}
+          className={`hero-slide ${idx === current ? "hero-slide--active" : ""}`}
+          aria-hidden={idx !== current}
+        >
+          {!imgFailed[idx] ? (
+            <div className="hero-slide__img-container">
+              <Image
+                src={slide.img}
+                alt=""
+                fill
+                priority={idx === 0}
+                className="hero-slide__img"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                onError={() => markFailed(idx)}
+              />
+            </div>
+          ) : (
+            <div
+              className="hero-slide__gradient"
+              style={{ background: slide.gradient }}
+            />
+          )}
+
+          <div className="hero-slide__scrim" />
+
+          <div className="hero-slide__copy">
+            <p className="hero-slide__sub">{slide.sub}</p>
+            <h2 className="hero-slide__label">{slide.label}</h2>
           </div>
-        ))}
-      </div>
-
-      {/* Overlay stack — cinematic depth */}
-      <div className="ov ov-vignette" />
-      <div className="ov ov-red" />
-      <div className="ov ov-bottom" />
-      <div className="ov ov-right" />
-
-      {/* KritiQ branding — bottom left */}
-      <div className="brand">
-        <span className="brand-logo">KritiQ</span>
-        <p className="brand-tag">Nigeria&apos;s pulse on film &amp; music</p>
-        <div className="film-strip">
-          {[...Array(9)].map((_, i) => (
-            <div key={i} className="film-hole" />
-          ))}
         </div>
+      ))}
+
+      <div className="hero-brand">
+        <span className="hero-brand__name">KritiQ</span>
+        <span className="hero-brand__tagline">
+          Nigeria&apos;s pulse on film &amp; music
+        </span>
       </div>
 
-      {/* Progress dots — right edge */}
-      <div className="dots">
-        {SLIDES.map((_, i) => (
-          <div
-            key={i}
-            className="dot"
-            style={{ animationDelay: `${i * PER_SLIDE}s` }}
+      <div className="hero-dots" role="tablist" aria-label="Slide indicators">
+        {SLIDES.map((_, idx) => (
+          <button
+            key={idx}
+            role="tab"
+            aria-selected={idx === current}
+            aria-label={`Slide ${idx + 1}`}
+            className={`hero-dot ${idx === current ? "hero-dot--active" : ""}`}
+            onClick={() => goTo(idx)}
           />
         ))}
       </div>
 
       <style jsx>{`
-        .hero-root {
+        .hero-carousel {
           position: relative;
           width: 100%;
           height: 100%;
           overflow: hidden;
           background: #050505;
         }
-
-        /* ── Slides ─────────────────────────────────────── */
-        .slides {
-          position: absolute;
-          inset: 0;
-        }
-
-        .slide {
+        .hero-slide {
           position: absolute;
           inset: 0;
           opacity: 0;
-          animation: kenBurns ${DURATION}s ease-in-out infinite;
-          will-change: opacity, transform;
+          transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .slide-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          object-position: center 20%;
-          filter: brightness(0.72) saturate(1.15);
+        .hero-slide--active {
+          opacity: 1;
         }
-
-        /*
-          Each slide visible for 5s of 35s cycle = 14.28%
-          Fade in  0→2.28% (0.8s)
-          Hold     2.28→14.28%
-          Fade out 14.28→16.57% (0.8s)
-          Dark     16.57→100%
-        */
-        @keyframes kenBurns {
-          0% {
-            opacity: 0;
-            transform: scale(1) translate(0%, 0%);
-          }
-          2.28% {
-            opacity: 1;
-            transform: scale(1) translate(0%, 0%);
-          }
-          14.28% {
-            opacity: 1;
-            transform: scale(1.09) translate(-1.5%, -1%);
-          }
-          16.57% {
-            opacity: 0;
-            transform: scale(1.11) translate(-2%, -1.5%);
-          }
-          99.9% {
-            opacity: 0;
-            transform: scale(1) translate(0%, 0%);
-          }
-          100% {
-            opacity: 0;
-            transform: scale(1) translate(0%, 0%);
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .slide {
-            animation: none;
-          }
-          .slide:first-child {
-            opacity: 1;
-          }
-        }
-
-        /* ── Overlays ───────────────────────────────────── */
-        .ov {
+        .hero-slide__img-container {
           position: absolute;
           inset: 0;
-          pointer-events: none;
+          width: 100%;
+          height: 100%;
         }
-
-        .ov-vignette {
-          background: radial-gradient(
-            ellipse at center,
-            transparent 25%,
-            rgba(0, 0, 0, 0.6) 100%
-          );
-          z-index: 2;
+        :global(.hero-slide__img) {
+          object-fit: cover !important;
+          object-position: center top !important;
         }
-
-        .ov-red {
-          background: linear-gradient(
-            135deg,
-            rgba(192, 0, 26, 0.24) 0%,
-            transparent 55%
-          );
-          z-index: 3;
-        }
-
-        /* Heavy bottom fade — brand area stays readable */
-        .ov-bottom {
-          background: linear-gradient(
-            to top,
-            rgba(5, 5, 5, 0.97) 0%,
-            rgba(5, 5, 5, 0.55) 25%,
-            transparent 55%
-          );
-          z-index: 4;
-        }
-
-        /* Right edge fade — blends into form panel */
-        .ov-right {
-          background: linear-gradient(
-            to right,
-            transparent 60%,
-            rgba(13, 13, 13, 0.85) 100%
-          );
-          z-index: 4;
-        }
-
-        /* ── Branding ────────────────────────────────────── */
-        .brand {
+        .hero-slide__gradient {
           position: absolute;
-          bottom: 44px;
-          left: 40px;
+          inset: 0;
+        }
+        .hero-slide__scrim {
+          position: absolute;
+          inset: 0;
+          background:
+            linear-gradient(
+              to top,
+              rgba(5, 5, 5, 0.92) 0%,
+              rgba(5, 5, 5, 0.35) 45%,
+              rgba(5, 5, 5, 0.18) 100%
+            ),
+            linear-gradient(to right, rgba(5, 5, 5, 0.45) 0%, transparent 60%);
+        }
+        .hero-slide__copy {
+          position: absolute;
+          bottom: 72px;
+          left: 28px;
+          right: 28px;
+        }
+        .hero-slide__sub {
+          font-family: "Lexend", sans-serif;
+          font-size: 0.72rem;
+          color: rgba(255, 255, 255, 0.5);
+          margin-bottom: 6px;
+          text-transform: uppercase;
+        }
+        .hero-slide__label {
+          font-family: "Clash Grotesk", sans-serif;
+          font-size: clamp(1.25rem, 3vw, 1.75rem);
+          font-weight: 700;
+          color: #fff;
+          line-height: 1.15;
+        }
+        .hero-brand {
+          position: absolute;
+          top: 28px;
+          left: 28px;
           z-index: 10;
         }
-
-        .brand-logo {
+        .hero-brand__name {
           display: block;
           font-family: "Clash Grotesk", sans-serif;
           font-weight: 700;
-          font-size: 2.75rem;
-          letter-spacing: -0.04em;
+          font-size: 1.6rem;
           background: linear-gradient(135deg, #e8001f, #ff4433);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          background-clip: text;
-          line-height: 1;
-          margin-bottom: 8px;
         }
-
-        .brand-tag {
+        .hero-brand__tagline {
           font-family: "Lexend", sans-serif;
-          font-size: 0.875rem;
-          color: rgba(255, 255, 255, 0.45);
-          margin: 0 0 18px;
-          letter-spacing: 0.015em;
+          font-size: 0.7rem;
+          color: rgba(255, 255, 255, 0.4);
         }
-
-        /* Decorative film strip */
-        .film-strip {
-          display: flex;
-          gap: 7px;
-          align-items: center;
-        }
-
-        .film-hole {
-          width: 9px;
-          height: 9px;
-          border-radius: 2px;
-          background: rgba(255, 255, 255, 0.12);
-          border: 1px solid rgba(255, 255, 255, 0.07);
-        }
-
-        /* ── Progress dots ───────────────────────────────── */
-        .dots {
+        .hero-dots {
           position: absolute;
-          right: 18px;
-          top: 50%;
-          transform: translateY(-50%);
-          z-index: 10;
+          bottom: 28px;
+          left: 28px;
           display: flex;
-          flex-direction: column;
-          gap: 8px;
+          gap: 6px;
+          z-index: 10;
         }
-
-        .dot {
-          width: 3px;
-          height: 22px;
+        .hero-dot {
+          width: 20px;
+          height: 3px;
           border-radius: 2px;
-          background: rgba(255, 255, 255, 0.18);
-          animation: dotPulse ${DURATION}s linear infinite;
+          border: none;
+          cursor: pointer;
+          background: rgba(255, 255, 255, 0.25);
+          transition: all 0.3s;
         }
-
-        @keyframes dotPulse {
-          0% {
-            background: rgba(255, 255, 255, 0.18);
-          }
-          2.28% {
-            background: rgba(192, 0, 26, 0.95);
-          }
-          14.28% {
-            background: rgba(192, 0, 26, 0.95);
-          }
-          16.57% {
-            background: rgba(255, 255, 255, 0.18);
-          }
-          100% {
-            background: rgba(255, 255, 255, 0.18);
-          }
+        .hero-dot--active {
+          background: #c0001a;
+          width: 32px;
         }
       `}</style>
     </div>
