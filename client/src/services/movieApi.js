@@ -1,5 +1,5 @@
 // client/services/movieApi.js
-import api from "@/apiClient/tokenRefresh";
+import api from "../apiClient/tokenRefresh";
 import { MOVIE_ROUTES } from "@/constants/routes";
 
 // ─── List movies (paginated) ──────────────────────────────────────

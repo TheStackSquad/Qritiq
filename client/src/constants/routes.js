@@ -50,3 +50,16 @@ export const PRO_ROUTES = {
 
 // ─── Health ───────────────────────────────────────────────────────
 export const HEALTH_ROUTE = "/health"; // no /api/v1 prefix — correct
+
+// ─── Spotlight ────────────────────────────────────────────────────────────────
+export const SPOTLIGHT_ROUTES = {
+  BASE: "/spotlight",
+  BY_SLUG: (slug) => `/spotlight/${slug}`,
+};
+
+export const ARENA_ROUTES = {
+  BASE: "/arena",
+  BATTLE: (id) => `/arena/battles/${id}`,
+  VOTE: "/arena/vote",
+  LEADERBOARD: "/arena/leaderboard",
+};
