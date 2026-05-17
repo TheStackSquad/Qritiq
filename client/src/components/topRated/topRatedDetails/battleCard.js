@@ -25,8 +25,9 @@ import Link from "next/link";
 import { Flame, Clock } from "lucide-react";
 import { useBattleVote } from "../../../utils/hooks/useArena";
 import useAuthStore from "../../../sessions/userSessions";
-import AuthGate from "../../../components/auth/authGate";
+import AuthGate from "../../auth/authGate";
 import CityPulseStrip from "./cityPulseStrip";
+import { getPosterUrl } from "../../../services/cloudinary/upload/urlBuilders";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -80,7 +81,7 @@ function ContentSide({
         <div className="cs-cover">
           {image ? (
             <Image
-              src={image}
+              src={getPosterUrl(image, { width: 200, height: 300 }).src}
               alt={title}
               fill
               sizes="(max-width: 640px) 40vw, 200px"

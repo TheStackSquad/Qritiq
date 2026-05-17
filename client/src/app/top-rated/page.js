@@ -34,8 +34,8 @@ import { useArena } from "../../utils/hooks/useArena";
 import { useSpotlight } from "../../utils/hooks/useSpotlight";
 import RoleFilterTabs from "../../components/topRated/topRatedUI/roleFilterTabs";
 import {
-  BattleCardSkeleton,
-  LeaderboardSkeleton,
+//  BattleCardSkeleton,
+//  LeaderboardSkeleton,
   PersonGridSkeleton
 } from "../../components/topRated/topRatedUI/arenaSkeletons";
 import { FeaturedHeroSkeleton } from "../../components/topRated/topRatedUI/spotlightSkeletons";

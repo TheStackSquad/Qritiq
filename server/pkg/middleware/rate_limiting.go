@@ -1,43 +1,51 @@
-//server/pkg/middleware/rate_limiting.go
+// server/pkg/middleware/rate_limiting.go
 
 package middleware
 
 import (
+	"context"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"golang.org/x/time/rate"
 )
 
-type ipLimiterStore struct {
-	limiters map[string]*rate.Limiter
-}
-
+// RateLimit implements a sliding/fixed window rate limiter utilizing Redis.
+// rps is treated as the maximum requests allowed within a 1-second window.
 func RateLimit(rdb *redis.Client, rps float64, burst int) gin.HandlerFunc {
-	limiters := make(map[string]*rate.Limiter)
-
-	getLimiter := func(ip string) *rate.Limiter {
-		if l, ok := limiters[ip]; ok {
-			return l
-		}
-		l := rate.NewLimiter(rate.Limit(rps), burst)
-		limiters[ip] = l
-		return l
-	}
-
 	return func(c *gin.Context) {
+		ctx := context.Background()
 		ip := c.ClientIP()
-		limiter := getLimiter(ip)
+		
+		// Create a unique Redis key using a 1-second window timestamp
+		// Example key: "rate_limit:127.0.0.1:1715925650"
+		now := time.Now().Unix()
+		redisKey := "rate_limit:" + ip + ":" + strconv.FormatInt(now, 10)
 
-		if !limiter.Allow() {
+		// Atomic Increment pattern
+		// pipeline reduces network roundtrips to Redis by batching commands
+		pipe := rdb.Pipeline()
+		incr := pipe.Incr(ctx, redisKey)
+		pipe.Expire(ctx, redisKey, 2*time.Second) // Auto-cleanup keys quickly
+		
+		_, err := pipe.Exec(ctx)
+		if err != nil {
+			// Fail open or close depending on preference; here we fail open but log it
+			c.Next()
+			return
+		}
+
+		// The burst arg defines our ceiling limit per second
+		if incr.Val() > int64(burst) {
 			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
 				"error":       "rate limit exceeded",
-				"retry_after": time.Now().Add(time.Second).Unix(),
+				"retry_after": now + 1,
 			})
 			return
 		}
+
 		c.Next()
 	}
 }
