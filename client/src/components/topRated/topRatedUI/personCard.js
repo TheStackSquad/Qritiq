@@ -14,6 +14,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Flame } from "lucide-react";
+import { getPosterUrl } from "../../../services/cloudinary/upload/urlBuilders";
 
 const ROLE_EMOJI = {
   actor: "🎭",
@@ -50,7 +51,7 @@ export default function PersonCard({ person }) {
       <div className="pc-photo">
         {photo_url ? (
           <Image
-            src={photo_url}
+            src={getPosterUrl(photo_url, { width: 200, height: 200 }).src}
             alt={name}
             fill
             sizes="(max-width: 640px) 44vw, 200px"

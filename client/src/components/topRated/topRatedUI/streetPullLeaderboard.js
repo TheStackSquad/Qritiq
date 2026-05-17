@@ -19,9 +19,13 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Flame, Star } from "lucide-react";
+import {
+  Flame,
+  //Star
+} from "lucide-react";
 import { useLeaderboard } from "../../../utils/hooks/useArena";
 import { LeaderboardSkeleton } from "./arenaSkeletons";
+import { getPosterUrl } from "../../../services/cloudinary/upload/urlBuilders";
 
 const TYPE_TABS = [
   { value: "", label: "All" },
@@ -110,7 +114,7 @@ function LeaderboardRow({ entry, index, maxScore }) {
         <div className="lr-thumb">
           {entry.image_url ? (
             <Image
-              src={entry.image_url}
+              src={getPosterUrl(entry.image_url, { width: 40, height: 52 }).src}
               alt={entry.title}
               fill
               sizes="44px"

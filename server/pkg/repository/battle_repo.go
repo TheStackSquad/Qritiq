@@ -353,7 +353,7 @@ func (r *BattleRepo) GetTaskMetadata(
 func (r *BattleRepo) ClaimTask(ctx context.Context, taskName string) (bool, error) {
 	var claimed bool
 	if err := r.db.GetContext(ctx, &claimed,
-		`SELECT fn_claim_task($1)`, taskName,
+		`SELECT fn_claim_task($1::text)`, taskName,
 	); err != nil {
 		return false, fmt.Errorf("battle_repo: claim_task: %w", err)
 	}
@@ -363,7 +363,7 @@ func (r *BattleRepo) ClaimTask(ctx context.Context, taskName string) (bool, erro
 // CompleteTask marks a task idle and schedules its next run.
 func (r *BattleRepo) CompleteTask(ctx context.Context, taskName string) error {
 	if _, err := r.db.ExecContext(ctx,
-		`SELECT fn_complete_task($1)`, taskName,
+		`SELECT fn_complete_task($1::text)`, taskName,
 	); err != nil {
 		return fmt.Errorf("battle_repo: complete_task: %w", err)
 	}
@@ -374,7 +374,7 @@ func (r *BattleRepo) CompleteTask(ctx context.Context, taskName string) error {
 // Next run is scheduled for 1 hour from now (not full week).
 func (r *BattleRepo) FailTask(ctx context.Context, taskName string, taskErr error) error {
 	if _, err := r.db.ExecContext(ctx,
-		`SELECT fn_fail_task($1, $2)`, taskName, taskErr.Error(),
+		`SELECT fn_fail_task($1::text, $2::text)`, taskName, taskErr.Error(),
 	); err != nil {
 		return fmt.Errorf("battle_repo: fail_task: %w", err)
 	}
